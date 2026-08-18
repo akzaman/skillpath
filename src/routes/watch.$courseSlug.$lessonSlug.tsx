@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VideoPlayer } from "@/components/video-player";
+import { LessonViewer } from "@/components/lesson-viewer";
 import { getCourseRecord } from "@/lib/catalog-service";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import {
@@ -292,11 +292,9 @@ function WatchPage() {
           ) : null}
 
           {lesson.preview || accessActive ? (
-            <VideoPlayer
-              key={lesson.slug}
-              sources={lesson.sources}
+            <LessonViewer
+              lesson={lesson}
               poster={course.poster}
-              title={lesson.title}
               initialTime={
                 thisDone ? 0 : Math.max(0, (lessonProgress?.positionSeconds ?? 0) - 2)
               }
@@ -306,6 +304,9 @@ function WatchPage() {
                   const duration = lastTick.current.duration || lesson.durationSeconds;
                   writeProgress(duration, duration, true);
                 }
+              }}
+              onComplete={() => {
+                if (user) completeLesson.mutate();
               }}
             />
           ) : (

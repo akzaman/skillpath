@@ -28,6 +28,8 @@ export type Lesson = {
   summary: string;
   transcript: string;
   preview: boolean;
+  kind: import("@/data/lesson-kinds").LessonKind;
+  content: import("@/data/lesson-kinds").LessonContent;
 };
 
 export type Course = {
@@ -91,6 +93,8 @@ function L(
     summary,
     transcript,
     preview,
+    kind: "video",
+    content: {},
   };
 }
 

@@ -23,6 +23,8 @@ import { enrollInCourse, getCourseLearning, toggleBookmark } from "@/lib/learnin
 import { accessLabel } from "@/lib/access";
 import { cn, formatMinutes } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { LessonKindIcon } from "@/components/lesson-type-picker";
+import { LESSON_KIND_META } from "@/data/lesson-kinds";
 
 export const Route = createFileRoute("/course/$slug")({
   loader: async ({ params }) => {
@@ -192,9 +194,13 @@ function CoursePage() {
                       <ChevronDown className="mt-1 size-4 rotate-[-90deg] text-muted" />
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
+                          <LessonKindIcon kind={lesson.kind ?? "video"} className="size-3.5 text-muted" />
                           <span className="text-sm font-medium">
                             {done ? t("course.completed") : ""}
                             {index + 1}. {lesson.title}
+                          </span>
+                          <span className="text-[10px] font-bold tracking-wide text-muted uppercase">
+                            {LESSON_KIND_META[lesson.kind ?? "video"].label}
                           </span>
                           {lesson.preview ? (
                             <span className="text-xs font-bold text-primary">{t("course.preview")}</span>

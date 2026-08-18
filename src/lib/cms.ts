@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { expiryFromDays, isAccessActive, daysLeft } from "@/lib/access";
 import { resolveVideoSources } from "@/data/media";
+import { LESSON_KINDS, type LessonContent, type LessonKind } from "@/data/lesson-kinds";
 import { getCourse as getSeedCourse } from "@/data/catalog";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { loadAllCourses } from "@/lib/catalog-service";
@@ -34,11 +35,42 @@ const lessonInput = z.object({
   title: z.string().min(2).max(80),
   summary: z.string().max(240),
   transcript: z.string().max(8000),
-  videoId: z.string().min(1),
+  videoId: z.string().min(1).optional().default("custom"),
   customUrl: z.string().max(2000).optional().default(""),
   preview: z.boolean(),
   durationSeconds: z.number().int().min(0).max(72000).optional().default(0),
+  kind: z.enum(LESSON_KINDS).optional().default("video"),
+  content: z
+    .object({
+      body: z.string().max(20000).optional(),
+      fileUrl: z.string().max(2000).optional(),
+      embedUrl: z.string().max(2000).optional(),
+      liveUrl: z.string().max(2000).optional(),
+      liveAt: z.string().max(80).optional(),
+      assignmentPrompt: z.string().max(4000).optional(),
+      questions: z
+        .array(
+          z.object({
+            id: z.string().max(40),
+            prompt: z.string().max(500),
+            choices: z.array(z.string().max(240)).max(8),
+            answer: z.number().int().min(-1).max(7),
+          }),
+        )
+        .max(40)
+        .optional(),
+      items: z
+        .array(z.object({ label: z.string().max(80), url: z.string().max(2000) }))
+        .max(20)
+        .optional(),
+    })
+    .optional()
+    .default({}),
 });
+
+function encodeLessonJson(kind: LessonKind, sources: unknown, content: LessonContent): string {
+  return JSON.stringify({ kind, sources, content });
+}
 
 async function assertCanEdit(userId: string, slug: string) {
   const profile = await ensureProfile(userId);
@@ -157,11 +189,11 @@ export const adoptPlatformCourse = createServerFn({ method: "POST" })
       await sql`
         insert into studio_lessons (
           course_slug, lesson_slug, sort_order, title, summary, transcript,
-          video_json, preview, duration_seconds
+          video_json, preview, duration_seconds, lesson_type
         ) values (
           ${seed.slug}, ${lesson.slug}, ${index}, ${lesson.title}, ${lesson.summary},
-          ${lesson.transcript}, ${JSON.stringify(lesson.sources)}, ${lesson.preview},
-          ${lesson.durationSeconds}
+          ${lesson.transcript}, ${JSON.stringify({ kind: lesson.kind ?? "video", sources: lesson.sources, content: lesson.content ?? {} })}, ${lesson.preview},
+          ${lesson.durationSeconds}, ${lesson.kind ?? "video"}
         )
       `;
     }
@@ -197,14 +229,16 @@ export const addStudioLesson = createServerFn({ method: "POST" })
       if (!clash[0]) break;
       lessonSlug = `${base}-${i + 2}`;
     }
-    const sources = JSON.stringify(resolveVideoSources(data.videoId, data.customUrl));
+    const sources = resolveVideoSources(data.videoId, data.customUrl);
+    const kind = data.kind ?? "video";
+    const payload = encodeLessonJson(kind, sources, data.content ?? {});
     await sql`
       insert into studio_lessons (
-        course_slug, lesson_slug, sort_order, title, summary, transcript, video_json, preview, duration_seconds
+        course_slug, lesson_slug, sort_order, title, summary, transcript, video_json, preview, duration_seconds, lesson_type
       ) values (
         ${data.courseSlug}, ${lessonSlug}, ${(last[0]?.n ?? -1) + 1},
         ${data.title.trim()}, ${data.summary.trim()}, ${data.transcript.trim()},
-        ${sources}, ${data.preview}, ${data.durationSeconds ?? 0}
+        ${payload}, ${data.preview}, ${data.durationSeconds ?? 0}, ${kind}
       )
     `;
     return { lessonSlug };
@@ -218,15 +252,18 @@ export const updateStudioLesson = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertCanEdit(context.userId, data.courseSlug);
     const sql = await getSql();
-    const sources = JSON.stringify(resolveVideoSources(data.videoId, data.customUrl));
+    const sources = resolveVideoSources(data.videoId, data.customUrl);
+    const kind = data.kind ?? "video";
+    const payload = encodeLessonJson(kind, sources, data.content ?? {});
     await sql`
       update studio_lessons set
         title = ${data.title.trim()},
         summary = ${data.summary.trim()},
         transcript = ${data.transcript.trim()},
-        video_json = ${sources},
+        video_json = ${payload},
         preview = ${data.preview},
-        duration_seconds = ${data.durationSeconds ?? 0}
+        duration_seconds = ${data.durationSeconds ?? 0},
+        lesson_type = ${kind}
       where course_slug = ${data.courseSlug} and lesson_slug = ${data.lessonSlug}
     `;
     return { ok: true as const };

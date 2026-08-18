@@ -3,15 +3,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Field, SelectField, TextArea } from "@/components/field";
+import { LessonFields, type LessonDraft } from "@/components/lesson-fields";
+import { LessonKindIcon } from "@/components/lesson-type-picker";
+import { LessonViewer } from "@/components/lesson-viewer";
 import { PosterPicker } from "@/components/poster-picker";
-import { VideoField } from "@/components/video-field";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VideoPlayer } from "@/components/video-player";
 import type { Lesson } from "@/data/catalog";
+import { LESSON_KIND_META } from "@/data/lesson-kinds";
 import {
   CATEGORY_OPTIONS,
   customUrlFromSources,
@@ -73,9 +75,13 @@ function EditCoursePage() {
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonSummary, setLessonSummary] = useState("");
   const [lessonTranscript, setLessonTranscript] = useState("");
-  const [lessonVideo, setLessonVideo] = useState(VIDEO_LIBRARY[0]!.id);
-  const [lessonCustomUrl, setLessonCustomUrl] = useState("");
   const [lessonPreview, setLessonPreview] = useState(true);
+  const [lessonDraft, setLessonDraft] = useState<LessonDraft>({
+    kind: "video",
+    videoId: VIDEO_LIBRARY[0]!.id,
+    customUrl: "",
+    content: {},
+  });
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [enrollEmail, setEnrollEmail] = useState("");
   const [enrollDays, setEnrollDays] = useState(30);
@@ -134,17 +140,24 @@ function EditCoursePage() {
           title: lessonTitle,
           summary: lessonSummary,
           transcript: lessonTranscript,
-          videoId: lessonVideo,
-          customUrl: lessonCustomUrl,
+          videoId: lessonDraft.videoId,
+          customUrl: lessonDraft.customUrl,
           preview: lessonPreview,
           durationSeconds: 0,
+          kind: lessonDraft.kind,
+          content: lessonDraft.content,
         },
       }),
     onSuccess: async () => {
       setLessonTitle("");
       setLessonSummary("");
       setLessonTranscript("");
-      setLessonCustomUrl("");
+      setLessonDraft({
+        kind: "video",
+        videoId: VIDEO_LIBRARY[0]!.id,
+        customUrl: "",
+        content: {},
+      });
       setLessonPreview(false);
       await refresh();
       toast("Lecture added");
@@ -294,12 +307,15 @@ function EditCoursePage() {
                 course.lessons.map((lesson, index) => (
                   <li key={lesson.slug} className="p-4">
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="w-8 text-sm text-muted tabular-nums">{index + 1}</span>
+                      <span className="grid size-8 place-items-center rounded-full bg-canvas text-muted">
+                        <LessonKindIcon kind={lesson.kind ?? "video"} className="size-4" />
+                      </span>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium">{lesson.title}</p>
                         <p className="text-xs text-muted">
-                          {lesson.preview ? "Free preview · " : ""}
-                          {lesson.summary || "No summary"}
+                          {LESSON_KIND_META[lesson.kind ?? "video"].label}
+                          {lesson.preview ? " · Free preview" : ""}
+                          {lesson.summary ? ` · ${lesson.summary}` : ""}
                         </p>
                       </div>
                       <Button size="sm" variant="ghost" onClick={() => void moveLesson(index, -1)}>
@@ -378,12 +394,7 @@ function EditCoursePage() {
                   onChange={(event) => setLessonTranscript(event.target.value)}
                 />
               </Field>
-              <VideoField
-                videoId={lessonVideo}
-                customUrl={lessonCustomUrl}
-                onVideoId={setLessonVideo}
-                onCustomUrl={setLessonCustomUrl}
-              />
+              <LessonFields value={lessonDraft} onChange={setLessonDraft} />
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -651,31 +662,28 @@ function LessonEditor({
   const [title, setTitle] = useState(lesson.title);
   const [summary, setSummary] = useState(lesson.summary);
   const [transcript, setTranscript] = useState(lesson.transcript);
-  const [videoId, setVideoId] = useState(videoIdFromSources(lesson.sources));
-  const [customUrl, setCustomUrl] = useState(customUrlFromSources(lesson.sources));
   const [preview, setPreview] = useState(lesson.preview);
   const [pending, setPending] = useState(false);
+  const [draft, setDraft] = useState<LessonDraft>({
+    kind: lesson.kind ?? "video",
+    videoId: videoIdFromSources(lesson.sources),
+    customUrl: lesson.content?.fileUrl || customUrlFromSources(lesson.sources),
+    content: lesson.content ?? {},
+  });
 
   return (
     <div className="mt-4 space-y-3 border-t border-line pt-4">
-      {lesson.sources[0] ? (
-        <VideoPlayer sources={lesson.sources} poster={poster} title={lesson.title} />
-      ) : null}
+      <LessonViewer lesson={{ ...lesson, kind: draft.kind, content: draft.content, sources: lesson.sources }} poster={poster} />
       <Field label="Title">
         <Input value={title} onChange={(event) => setTitle(event.target.value)} />
       </Field>
       <Field label="Summary">
         <Input value={summary} onChange={(event) => setSummary(event.target.value)} />
       </Field>
-      <Field label="Transcript">
+      <Field label="Notes / transcript">
         <TextArea value={transcript} onChange={(event) => setTranscript(event.target.value)} />
       </Field>
-      <VideoField
-        videoId={videoId}
-        customUrl={customUrl}
-        onVideoId={setVideoId}
-        onCustomUrl={setCustomUrl}
-      />
+      <LessonFields value={draft} onChange={setDraft} />
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -696,10 +704,12 @@ function LessonEditor({
               title,
               summary,
               transcript,
-              videoId,
-              customUrl,
+              videoId: draft.videoId,
+              customUrl: draft.customUrl,
               preview,
               durationSeconds: lesson.durationSeconds,
+              kind: draft.kind,
+              content: draft.content,
             },
           })
             .then(onSaved)

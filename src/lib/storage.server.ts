@@ -79,8 +79,20 @@ export async function createLectureUpload(input: {
 }): Promise<{ uploadUrl: string; publicUrl: string; maxBytes: number; host: string }> {
   const cfg = config();
   if (!cfg) throw new Error("Object storage is not configured");
-  const mime = input.contentType || "video/mp4";
-  if (!mime.startsWith("video/")) throw new Error("Only video files can be uploaded here");
+  const mime = input.contentType || "application/octet-stream";
+  const allowed =
+    mime.startsWith("video/") ||
+    mime.startsWith("audio/") ||
+    mime === "application/pdf" ||
+    mime === "application/zip" ||
+    mime === "application/x-zip-compressed" ||
+    mime === "text/html" ||
+    mime === "application/vnd.ms-powerpoint" ||
+    mime === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    mime === "application/msword" ||
+    mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    mime === "application/octet-stream";
+  if (!allowed) throw new Error("That file type cannot be uploaded here");
   const key = `lectures/${input.userId}/${Date.now().toString(36)}-${safeName(input.filename)}`;
   const target = objectPutUrl(cfg.endpoint, cfg.bucket, key);
   const signed = await clientFor(cfg).sign(new Request(target, { method: "PUT" }), {

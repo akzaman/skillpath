@@ -55,6 +55,10 @@ export async function uploadVideoToBucket(file: File): Promise<string> {
   return signed.publicUrl;
 }
 
+export async function uploadMediaToBucket(file: File): Promise<string> {
+  return uploadVideoToBucket(file);
+}
+
 export async function uploadVideoFile(file: File, bearerToken?: string | null): Promise<string> {
   if (file.size > MAX_VIDEO_BYTES) {
     throw new Error("Clips up to 4 MB can be uploaded here. For longer films, paste a hosted MP4 or YouTube URL.");

@@ -6,7 +6,9 @@ import {
   type Category,
   type Course,
   type Lesson,
+  type VideoSource,
 } from "@/data/catalog";
+import { isLessonKind, type LessonContent, type LessonKind } from "@/data/lesson-kinds";
 import { getSql } from "@/lib/db";
 import { canAdmin, canTeach, ensureProfile, optionalAuth } from "@/lib/roles";
 
@@ -44,27 +46,59 @@ type StudioLessonRow = {
   video_json: string;
   preview: boolean;
   duration_seconds: number;
+  lesson_type: string | null;
 };
+
+function asKind(value: string | null | undefined): LessonKind {
+  const next = value ?? "";
+  return isLessonKind(next) ? next : "video";
+}
+
+function parseLessonPayload(raw: string, lessonType: string | null): {
+  kind: LessonKind;
+  sources: VideoSource[];
+  content: LessonContent;
+} {
+  let parsed: unknown = [];
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = [];
+  }
+  if (Array.isArray(parsed)) {
+    return { kind: asKind(lessonType), sources: parsed as VideoSource[], content: {} };
+  }
+  if (parsed && typeof parsed === "object") {
+    const row = parsed as {
+      kind?: string;
+      sources?: VideoSource[];
+      content?: LessonContent;
+    };
+    return {
+      kind: asKind(row.kind || lessonType),
+      sources: Array.isArray(row.sources) ? row.sources : [],
+      content: row.content && typeof row.content === "object" ? row.content : {},
+    };
+  }
+  return { kind: "video", sources: [], content: {} };
+}
 
 function parseLessons(rows: StudioLessonRow[]): Lesson[] {
   return rows
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((row) => {
-      let sources: Lesson["sources"] = [];
-      try {
-        sources = JSON.parse(row.video_json) as Lesson["sources"];
-      } catch {
-        sources = [];
-      }
+      const payload = parseLessonPayload(row.video_json, row.lesson_type);
       return {
         slug: row.lesson_slug,
         title: row.title,
         durationSeconds: row.duration_seconds,
-        sources,
+        sources: payload.sources,
         summary: row.summary,
         transcript: row.transcript,
         preview: row.preview,
+        kind: payload.kind,
+        content: payload.content,
       };
     });
 }
@@ -109,7 +143,7 @@ async function loadStudio(): Promise<CourseRecord[]> {
   if (!courseRows.length) return [];
   const slugs = courseRows.map((row) => row.slug);
   const lessonRows = await sql<StudioLessonRow>`
-    select course_slug, lesson_slug, sort_order, title, summary, transcript, video_json, preview, duration_seconds
+    select course_slug, lesson_slug, sort_order, title, summary, transcript, video_json, preview, duration_seconds, lesson_type
     from studio_lessons
   `;
   const byCourse = new Map<string, StudioLessonRow[]>();
