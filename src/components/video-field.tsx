@@ -74,7 +74,7 @@ export function VideoField({
           </label>
           <p className="text-xs text-muted">
             {cloud
-              ? "Files go to your cloud bucket (MP4/WebM up to 2 GB). You can still paste YouTube, Vimeo, or Drive."
+              ? "Files go to R2 (up to 2 GB). If upload fails, add CORS on the bucket: PUT from https://skillpath-lac.vercel.app."
               : "Built-in upload is 4 MB. Add Cloudflare R2 or Google Cloud (S3 keys) on Vercel to send long MP4s. Or paste YouTube / Drive."}
           </p>
         </>

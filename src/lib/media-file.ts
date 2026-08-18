@@ -25,20 +25,31 @@ export async function compressImageFile(file: File): Promise<string> {
 }
 
 export async function uploadVideoToBucket(file: File): Promise<string> {
-  const signed = await createLectureUpload({
-    data: {
-      filename: file.name,
-      contentType: file.type || "video/mp4",
-      size: file.size,
-    },
-  });
-  const put = await fetch(signed.uploadUrl, {
-    method: "PUT",
-    body: file,
-    headers: { "Content-Type": file.type || "video/mp4" },
-  });
+  let signed: { uploadUrl: string; publicUrl: string };
+  try {
+    signed = await createLectureUpload({
+      data: {
+        filename: file.name,
+        contentType: file.type || "video/mp4",
+        size: file.size,
+      },
+    });
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : "Could not start the cloud upload");
+  }
+  let put: Response;
+  try {
+    put = await fetch(signed.uploadUrl, {
+      method: "PUT",
+      body: file,
+    });
+  } catch {
+    throw new Error(
+      "The browser was blocked from R2 (CORS). In the bucket → Settings → CORS, allow PUT from https://skillpath-lac.vercel.app, then try again.",
+    );
+  }
   if (!put.ok) {
-    throw new Error("Cloud storage rejected the upload. Check the bucket CORS rules.");
+    throw new Error(`R2 rejected the upload (${put.status}). Check the API token can write objects.`);
   }
   return signed.publicUrl;
 }

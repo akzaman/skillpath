@@ -12,7 +12,14 @@ function config() {
   if (!bucket || !accessKeyId || !secretAccessKey || !endpoint || !publicBase) {
     return null;
   }
-  return { bucket, accessKeyId, secretAccessKey, endpoint: endpoint.replace(/\/$/, ""), region, publicBase };
+  return {
+    bucket,
+    accessKeyId,
+    secretAccessKey,
+    endpoint: endpoint.replace(/\/$/, ""),
+    region,
+    publicBase,
+  };
 }
 
 export function storageEnabled(): boolean {
@@ -30,6 +37,17 @@ function safeName(name: string): string {
   return name.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/-+/g, "-").slice(0, 80) || "lecture.mp4";
 }
 
+function objectPutUrl(endpoint: string, bucket: string, key: string): string {
+  const base = endpoint.replace(/\/$/, "");
+  if (/\.r2\.dev$/i.test(new URL(base).host)) {
+    throw new Error(
+      "S3_ENDPOINT is the public r2.dev URL. Use the S3 API URL instead (…r2.cloudflarestorage.com).",
+    );
+  }
+  if (base.endsWith(`/${bucket}`)) return `${base}/${key}`;
+  return `${base}/${bucket}/${key}`;
+}
+
 export async function createLectureUpload(input: {
   userId: string;
   filename: string;
@@ -40,20 +58,16 @@ export async function createLectureUpload(input: {
   const mime = input.contentType || "video/mp4";
   if (!mime.startsWith("video/")) throw new Error("Only video files can be uploaded here");
   const key = `lectures/${input.userId}/${Date.now().toString(36)}-${safeName(input.filename)}`;
-  const objectUrl = `${cfg.endpoint}/${cfg.bucket}/${key}`;
+  const target = objectPutUrl(cfg.endpoint, cfg.bucket, key);
   const client = new AwsClient({
     accessKeyId: cfg.accessKeyId,
     secretAccessKey: cfg.secretAccessKey,
     region: cfg.region,
     service: "s3",
   });
-  const signed = await client.sign(
-    new Request(objectUrl, {
-      method: "PUT",
-      headers: { "content-type": mime },
-    }),
-    { aws: { signQuery: true } },
-  );
+  const signed = await client.sign(new Request(target, { method: "PUT" }), {
+    aws: { signQuery: true },
+  });
   return {
     uploadUrl: signed.url,
     publicUrl: `${cfg.publicBase}/${key}`,
