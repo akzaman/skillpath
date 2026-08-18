@@ -207,6 +207,24 @@ function canSee(course: CourseRecord, userId: string | null, role: "student" | "
   return canTeach(role) && course.ownerId === userId;
 }
 
+function hideProtectedFiles(course: CourseRecord): CourseRecord {
+  return {
+    ...course,
+    lessons: course.lessons.map((lesson) => {
+      if (!["pdf", "ppt", "scorm", "download"].includes(lesson.kind ?? "video")) return lesson;
+      return {
+        ...lesson,
+        sources: [],
+        content: {
+          ...lesson.content,
+          fileUrl: undefined,
+          items: lesson.content.items?.map((item) => ({ label: item.label, url: "" })),
+        },
+      };
+    }),
+  };
+}
+
 export const listVisibleCourses = createServerFn({ method: "GET" })
   .middleware([optionalAuth])
   .handler(async ({ context }) => {
@@ -216,14 +234,14 @@ export const listVisibleCourses = createServerFn({ method: "GET" })
       const profile = await ensureProfile(context.userId);
       role = profile.role;
     }
-    return all.filter((course) => canSee(course, context.userId, role));
+    return all.filter((course) => canSee(course, context.userId, role)).map(hideProtectedFiles);
   });
 
 type ProfileRole = "student" | "teacher" | "admin" | null;
 
 export const listPublishedCourses = createServerFn({ method: "GET" }).handler(async () => {
   const all = await loadAllCourses();
-  return all.filter((course) => course.published);
+  return all.filter((course) => course.published).map(hideProtectedFiles);
 });
 
 export const getCourseRecord = createServerFn({ method: "GET" })
@@ -239,7 +257,7 @@ export const getCourseRecord = createServerFn({ method: "GET" })
       role = profile.role;
     }
     if (!canSee(course, context.userId, role)) return null;
-    return course;
+    return hideProtectedFiles(course);
   });
 
 export function findSeedOrStatic(slug: string): Course | undefined {

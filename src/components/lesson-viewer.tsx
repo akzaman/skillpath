@@ -3,15 +3,13 @@ import { Download, ExternalLink, Radio } from "lucide-react";
 import type { Lesson } from "@/data/catalog";
 import { Button } from "@/components/ui/button";
 import { TextArea } from "@/components/field";
+import { PdfViewer } from "@/components/pdf-viewer";
 import { VideoPlayer } from "@/components/video-player";
 import { embedSrc, parseVideoUrl } from "@/lib/video-url";
 
-function viewerUrl(url: string): string {
-  return `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(url)}`;
-}
-
 export function LessonViewer({
   lesson,
+  courseSlug,
   poster,
   initialTime,
   onProgress,
@@ -19,6 +17,7 @@ export function LessonViewer({
   onComplete,
 }: {
   lesson: Lesson;
+  courseSlug?: string;
   poster?: string;
   initialTime?: number;
   onProgress?: (seconds: number, duration: number) => void;
@@ -28,6 +27,7 @@ export function LessonViewer({
   const kind = lesson.kind ?? "video";
   const content = lesson.content ?? {};
   const file = content.fileUrl || lesson.sources[0]?.src || "";
+  const protectedSrc = courseSlug ? `/api/lessons/${courseSlug}/${lesson.slug}/file` : file;
 
   if (kind === "video") {
     return (
@@ -68,20 +68,17 @@ export function LessonViewer({
     );
   }
 
-  if (kind === "pdf" || kind === "ppt" || kind === "scorm") {
-    if (!file) {
-      return <Empty label="No file attached to this lesson." />;
-    }
+  if (kind === "pdf") {
+    if (!protectedSrc) return <Empty label="No file attached to this lesson." />;
+    return <PdfViewer src={protectedSrc} title={lesson.title} />;
+  }
+
+  if (kind === "ppt" || kind === "scorm") {
+    if (!protectedSrc) return <Empty label="No file attached to this lesson." />;
     return (
       <div className="overflow-hidden rounded-xl border border-line bg-elevated">
-        <iframe title={lesson.title} src={kind === "scorm" ? file : viewerUrl(file)} className="h-[70vh] w-full" />
-        <div className="flex justify-end p-3">
-          <Button asChild variant="outline" size="sm">
-            <a href={file} target="_blank" rel="noreferrer">
-              Open file
-            </a>
-          </Button>
-        </div>
+        <iframe title={lesson.title} src={protectedSrc} className="h-[70vh] w-full bg-canvas" />
+        <p className="px-3 py-2 text-xs text-muted">View only — download is disabled.</p>
       </div>
     );
   }
@@ -91,11 +88,9 @@ export function LessonViewer({
       <div className="grid place-items-center rounded-xl border border-line bg-surface px-6 py-16 text-center">
         <Download className="size-8 text-muted" />
         <p className="mt-3 text-sm text-muted">Download the material for this lesson.</p>
-        {file ? (
+        {protectedSrc ? (
           <Button asChild className="mt-4" onClick={() => onComplete?.()}>
-            <a href={file} target="_blank" rel="noreferrer">
-              Download file
-            </a>
+            <a href={protectedSrc}>Download file</a>
           </Button>
         ) : (
           <p className="mt-2 text-sm text-danger">No file attached.</p>

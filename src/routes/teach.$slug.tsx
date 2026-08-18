@@ -673,7 +673,11 @@ function LessonEditor({
 
   return (
     <div className="mt-4 space-y-3 border-t border-line pt-4">
-      <LessonViewer lesson={{ ...lesson, kind: draft.kind, content: draft.content, sources: lesson.sources }} poster={poster} />
+      <LessonViewer
+        lesson={{ ...lesson, kind: draft.kind, content: draft.content, sources: lesson.sources }}
+        courseSlug={courseSlug}
+        poster={poster}
+      />
       <Field label="Title">
         <Input value={title} onChange={(event) => setTitle(event.target.value)} />
       </Field>

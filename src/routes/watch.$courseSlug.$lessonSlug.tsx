@@ -294,6 +294,7 @@ function WatchPage() {
           {lesson.preview || accessActive ? (
             <LessonViewer
               lesson={lesson}
+              courseSlug={course.slug}
               poster={course.poster}
               initialTime={
                 thisDone ? 0 : Math.max(0, (lessonProgress?.positionSeconds ?? 0) - 2)

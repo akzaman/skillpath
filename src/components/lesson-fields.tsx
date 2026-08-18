@@ -176,6 +176,11 @@ export function LessonFields({
                   ? ".zip,.html,text/html,application/zip"
                   : "*/*"
           }
+          hint={
+            value.kind === "pdf"
+              ? "Students can only view this PDF in the lesson player. They do not get a download link."
+              : undefined
+          }
         />
       ) : null}
       {value.kind === "embedded" ? (

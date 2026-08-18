@@ -30,6 +30,7 @@ import { Route as ApiCronAccessExpiryRouteImport } from './routes/api/cron/acces
 import { Route as ApiMediaIdRouteImport } from './routes/api/media/$id'
 import { Route as ApiMediaUploadRouteImport } from './routes/api/media/upload'
 import { Route as WatchCourseSlugLessonSlugRouteImport } from './routes/watch.$courseSlug.$lessonSlug'
+import { Route as ApiLessonsCourseSlugLessonSlugFileRouteImport } from './routes/api/lessons/$courseSlug/$lessonSlug/file'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -137,6 +138,12 @@ const WatchCourseSlugLessonSlugRoute =
     path: '/watch/$courseSlug/$lessonSlug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiLessonsCourseSlugLessonSlugFileRoute =
+  ApiLessonsCourseSlugLessonSlugFileRouteImport.update({
+    id: '/api/lessons/$courseSlug/$lessonSlug/file',
+    path: '/api/lessons/$courseSlug/$lessonSlug/file',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
+  '/api/lessons/$courseSlug/$lessonSlug/file': typeof ApiLessonsCourseSlugLessonSlugFileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -181,6 +189,7 @@ export interface FileRoutesByTo {
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
+  '/api/lessons/$courseSlug/$lessonSlug/file': typeof ApiLessonsCourseSlugLessonSlugFileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -205,6 +214,7 @@ export interface FileRoutesById {
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
+  '/api/lessons/$courseSlug/$lessonSlug/file': typeof ApiLessonsCourseSlugLessonSlugFileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
+    | '/api/lessons/$courseSlug/$lessonSlug/file'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
+    | '/api/lessons/$courseSlug/$lessonSlug/file'
   id:
     | '__root__'
     | '/'
@@ -274,6 +286,7 @@ export interface FileRouteTypes {
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
+    | '/api/lessons/$courseSlug/$lessonSlug/file'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -292,6 +305,7 @@ export interface RootRouteChildren {
   ApiMediaIdRoute: typeof ApiMediaIdRoute
   ApiMediaUploadRoute: typeof ApiMediaUploadRoute
   WatchCourseSlugLessonSlugRoute: typeof WatchCourseSlugLessonSlugRoute
+  ApiLessonsCourseSlugLessonSlugFileRoute: typeof ApiLessonsCourseSlugLessonSlugFileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -443,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchCourseSlugLessonSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/lessons/$courseSlug/$lessonSlug/file': {
+      id: '/api/lessons/$courseSlug/$lessonSlug/file'
+      path: '/api/lessons/$courseSlug/$lessonSlug/file'
+      fullPath: '/api/lessons/$courseSlug/$lessonSlug/file'
+      preLoaderRoute: typeof ApiLessonsCourseSlugLessonSlugFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -490,6 +511,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMediaIdRoute: ApiMediaIdRoute,
   ApiMediaUploadRoute: ApiMediaUploadRoute,
   WatchCourseSlugLessonSlugRoute: WatchCourseSlugLessonSlugRoute,
+  ApiLessonsCourseSlugLessonSlugFileRoute:
+    ApiLessonsCourseSlugLessonSlugFileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
