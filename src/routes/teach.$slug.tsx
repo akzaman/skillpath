@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Lesson } from "@/data/catalog";
 import { LESSON_KIND_META } from "@/data/lesson-kinds";
@@ -23,6 +24,8 @@ import {
   videoIdFromSources,
 } from "@/data/media";
 import { RedirectToSignIn } from "@/lib/auth/gates";
+import { getCourseAnalytics, type CourseAnalytics } from "@/lib/analytics";
+import { formatMinutes } from "@/lib/utils";
 import {
   addStudioLesson,
   deleteStudioCourse,
@@ -58,6 +61,11 @@ function EditCoursePage() {
   const studentsQuery = useQuery({
     queryKey: ["studio-students", slug],
     queryFn: () => listCourseStudents({ data: { slug } }),
+    enabled: Boolean(user && profile && canTeach(profile.role)),
+  });
+  const analyticsQuery = useQuery({
+    queryKey: ["course-analytics", slug],
+    queryFn: () => getCourseAnalytics({ data: { slug } }),
     enabled: Boolean(user && profile && canTeach(profile.role)),
   });
   const course = courseQuery.data;
@@ -289,6 +297,7 @@ function EditCoursePage() {
             <TabsTrigger value="lectures">Lectures</TabsTrigger>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="students">Students ({students.length})</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="lectures">
@@ -636,6 +645,14 @@ function EditCoursePage() {
               </table>
             </div>
           </TabsContent>
+
+          <TabsContent value="analytics">
+            {analyticsQuery.isLoading ? (
+              <p className="text-sm text-muted">Loading analytics…</p>
+            ) : (
+              <AnalyticsPanel data={analyticsQuery.data} />
+            )}
+          </TabsContent>
         </Tabs>
       </main>
       <SiteFooter />
@@ -713,6 +730,91 @@ function LessonEditor({
       >
         {pending ? "Saving…" : "Save lecture"}
       </Button>
+    </div>
+  );
+}
+
+function AnalyticsPanel({ data }: { data?: CourseAnalytics }) {
+  if (!data) {
+    return <p className="text-sm text-muted">No analytics yet.</p>;
+  }
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-4">
+        {[
+          { label: "Enrolled", value: data.enrolled },
+          { label: "Unique viewers", value: data.uniqueViewers },
+          { label: "Lesson completions", value: data.completions },
+          { label: "Time watched", value: formatMinutes(data.watchedSeconds) },
+        ].map((item) => (
+          <div key={item.label} className="rounded-md border border-line bg-surface p-4">
+            <p className="text-xs font-bold tracking-wide text-muted uppercase">{item.label}</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums">{item.value}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-sm text-muted">
+        Course completion rate {data.completionRate}% (completed lessons ÷ enrolled × lectures).
+      </p>
+      <div className="overflow-x-auto rounded-md border border-line bg-surface">
+        <table className="w-full min-w-[720px] text-left text-sm">
+          <thead className="border-b border-line text-xs tracking-wide text-muted uppercase">
+            <tr>
+              <th className="px-4 py-3 font-medium">Lesson</th>
+              <th className="px-4 py-3 font-medium">Views</th>
+              <th className="px-4 py-3 font-medium">Viewers</th>
+              <th className="px-4 py-3 font-medium">Completed</th>
+              <th className="px-4 py-3 font-medium">Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.lessons.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-muted">
+                  Add lectures to start collecting analytics.
+                </td>
+              </tr>
+            ) : (
+              data.lessons.map((lesson) => (
+                <tr key={lesson.slug} className="border-b border-line last:border-0 align-top">
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{lesson.title}</p>
+                    <p className="text-xs text-muted">
+                      {LESSON_KIND_META[lesson.kind as keyof typeof LESSON_KIND_META]?.label ??
+                        lesson.kind}
+                      {lesson.topicCount > 1 ? ` · ${lesson.topicCount} topics` : ""}
+                    </p>
+                    {lesson.topics.length > 1 ? (
+                      <ul className="mt-2 space-y-1 text-xs text-muted">
+                        {lesson.topics.map((topic) => (
+                          <li key={topic.id}>
+                            {topic.title}: {topic.viewers} viewed
+                            {topic.completed ? ` · ${topic.completed} done` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 tabular-nums">{lesson.views}</td>
+                  <td className="px-4 py-3 tabular-nums">{lesson.viewers}</td>
+                  <td className="px-4 py-3 tabular-nums">
+                    {lesson.completed}/{lesson.started || 0}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="min-w-28">
+                      <div className="mb-1 flex justify-between text-xs text-muted">
+                        <span>{lesson.completionRate}%</span>
+                        <span>{lesson.avgPercent}% watched</span>
+                      </div>
+                      <Progress value={lesson.completionRate} className="h-1.5 bg-elevated" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, ExternalLink, Radio } from "lucide-react";
 import type { Lesson } from "@/data/catalog";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export function LessonViewer({
   onProgress,
   onEnded,
   onComplete,
+  onTopicView,
 }: {
   lesson: Lesson;
   courseSlug?: string;
@@ -26,6 +27,7 @@ export function LessonViewer({
   onProgress?: (seconds: number, duration: number) => void;
   onEnded?: () => void;
   onComplete?: () => void;
+  onTopicView?: (topicId: string) => void;
 }) {
   const topics =
     lesson.topics && lesson.topics.length > 0
@@ -38,6 +40,10 @@ export function LessonViewer({
         });
   const [activeId, setActiveId] = useState(topics[0]?.id ?? "main");
   const topic = topics.find((item) => item.id === activeId) ?? topics[0];
+
+  useEffect(() => {
+    if (topic?.id) onTopicView?.(topic.id);
+  }, [topic?.id]);
   const item = topicToLesson(lesson, topic);
 
   const body = (

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LessonViewer } from "@/components/lesson-viewer";
 import { getCourseRecord } from "@/lib/catalog-service";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { trackLessonEvent } from "@/lib/analytics";
 import {
   getCourseLearning,
   markLessonComplete,
@@ -66,6 +67,13 @@ function WatchPage() {
   const [localComplete, setLocalComplete] = useState(false);
   const lastSaved = useRef(0);
   const lastTick = useRef({ seconds: 0, duration: 0 });
+
+  useEffect(() => {
+    if (!user) return;
+    void trackLessonEvent({
+      data: { courseSlug: course.slug, lessonSlug: lesson.slug, kind: "view" },
+    }).catch(() => undefined);
+  }, [user, course.slug, lesson.slug]);
 
   const learningQuery = useQuery({
     queryKey: ["course-learning", course.slug, user?.id],
@@ -308,6 +316,17 @@ function WatchPage() {
               }}
               onComplete={() => {
                 if (user) completeLesson.mutate();
+              }}
+              onTopicView={(topicId) => {
+                if (!user) return;
+                void trackLessonEvent({
+                  data: {
+                    courseSlug: course.slug,
+                    lessonSlug: lesson.slug,
+                    topicId,
+                    kind: "topic_view",
+                  },
+                }).catch(() => undefined);
               }}
             />
           ) : (

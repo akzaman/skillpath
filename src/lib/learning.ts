@@ -138,6 +138,17 @@ export const saveProgress = createServerFn({ method: "POST" })
         completed = (lesson_progress.completed or excluded.completed),
         updated_at = now()
     `;
+    if (data.completed) {
+      void import("@/lib/analytics").then(({ trackLessonEvent }) => {
+        void trackLessonEvent({
+          data: {
+            courseSlug: data.courseSlug,
+            lessonSlug: data.lessonSlug,
+            kind: "complete",
+          },
+        });
+      });
+    }
     return { ok: true as const };
   });
 
@@ -410,6 +421,15 @@ export const markLessonComplete = createServerFn({ method: "POST" })
         completed = true,
         updated_at = now()
     `;
+    void import("@/lib/analytics").then(({ trackLessonEvent }) => {
+      void trackLessonEvent({
+        data: {
+          courseSlug: data.courseSlug,
+          lessonSlug: data.lessonSlug,
+          kind: "complete",
+        },
+      });
+    });
     return { ok: true as const };
   });
 
