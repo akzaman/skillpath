@@ -36,11 +36,11 @@ export function VideoField({
       </Field>
       {videoId === "custom" ? (
         <>
-          <Field label="Video URL (MP4, YouTube, or Vimeo)">
+          <Field label="Video URL (MP4, YouTube, Vimeo, or Google Drive)">
             <Input
               value={customUrl}
               onChange={(event) => onCustomUrl(event.target.value)}
-              placeholder="https://…/lecture.mp4 or YouTube link"
+              placeholder="https://drive.google.com/file/d/…/view"
             />
           </Field>
           <label className="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-line bg-surface px-3 text-sm font-medium hover:border-fg">
@@ -69,7 +69,8 @@ export function VideoField({
             />
           </label>
           <p className="text-xs text-muted">
-            Upload an MP4/WebM up to 4 MB, or paste a hosted file / YouTube / Vimeo link.
+            Upload an MP4/WebM up to 4 MB, or paste a hosted file, YouTube, Vimeo, or
+            Google Drive link. Drive files must be shared as “Anyone with the link”.
           </p>
         </>
       ) : null}
