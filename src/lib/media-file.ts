@@ -43,9 +43,10 @@ export async function uploadVideoToBucket(file: File): Promise<string> {
       method: "PUT",
       body: file,
     });
-  } catch {
+  } catch (error) {
+    const host = signed.uploadUrl ? new URL(signed.uploadUrl).host : "R2";
     throw new Error(
-      "The browser was blocked from R2 (CORS). In the bucket → Settings → CORS, allow PUT from https://skillpath-lac.vercel.app, then try again.",
+      `The browser was blocked from ${host} (CORS). Cloudflare → R2 → your bucket → Settings → CORS Policy → paste the JSON shown under the upload button.`,
     );
   }
   if (!put.ok) {

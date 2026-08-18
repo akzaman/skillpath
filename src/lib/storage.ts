@@ -33,3 +33,10 @@ export const createLectureUpload = createServerFn({ method: "POST" })
       contentType: data.contentType,
     });
   });
+
+export const applyBucketCors = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async () => {
+    const { applyBucketCors: apply } = await import("./storage.server");
+    return apply();
+  });
