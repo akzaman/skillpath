@@ -1,10 +1,10 @@
 export type Category =
-  | "Design"
-  | "Photography"
-  | "Craft"
-  | "Engineering"
-  | "Writing"
-  | "Cinema";
+  | "Fisco e tasse"
+  | "CAF e Patronato"
+  | "Lingua italiana"
+  | "Patente B"
+  | "Immigrazione"
+  | "Lavoro e impresa";
 
 export type Level = "Foundations" | "Intermediate" | "Advanced";
 
@@ -63,486 +63,257 @@ const V = {
     { src: "/videos/flower.mp4", type: "video/mp4" },
     { src: "/videos/flower.webm", type: "video/webm" },
   ],
-  rail: [
-    { src: "/videos/clip.mp4", type: "video/mp4" },
-    { src: "/videos/clip.webm", type: "video/webm" },
-  ],
 } as const;
 
 export const CATEGORIES: Category[] = [
-  "Design",
-  "Photography",
-  "Craft",
-  "Engineering",
-  "Writing",
-  "Cinema",
+  "Fisco e tasse",
+  "CAF e Patronato",
+  "Lingua italiana",
+  "Patente B",
+  "Immigrazione",
+  "Lavoro e impresa",
 ];
+
+function L(
+  slug: string,
+  title: string,
+  minutes: number,
+  sources: readonly VideoSource[],
+  summary: string,
+  transcript: string,
+  preview = false,
+): Lesson {
+  return {
+    slug,
+    title,
+    durationSeconds: minutes * 60,
+    sources: [...sources],
+    summary,
+    transcript,
+    preview,
+  };
+}
 
 export const courses: Course[] = [
   {
-    slug: "type-as-architecture",
-    title: "Type as Architecture",
-    subtitle: "How letters hold space, weight, and time.",
+    slug: "sistema-fiscale-italiano",
+    title: "Italian tax system",
+    subtitle: "IRPEF, IVA, codice fiscale — how the state actually collects money.",
     description:
-      "A studio course on editorial typography. Mara Voss treats the page as a building: columns as load-bearing walls, contrast as light, and silence as structure. You will learn to set type that feels inevitable rather than decorated.",
-    category: "Design",
-    level: "Intermediate",
-    poster: "/courses/type.jpg",
+      "A clear map of the Italian tax system for residents and newcomers. Chiara Benedetti walks through who pays what, which codes matter, and how Agenzia delle Entrate talks to you — without the fog of a commercialista’s waiting room.",
+    category: "Fisco e tasse",
+    level: "Foundations",
+    poster: "/courses/build.jpg",
     featured: true,
     instructor: {
-      name: "Mara Voss",
-      title: "Type director, Voss Press",
-      initials: "MV",
-      bio: "Mara spent twelve years as design director at a literary imprint before founding her own press. Her work sits in the Walker and Stedelijk collections.",
+      name: "Chiara Benedetti",
+      title: "Commercialista, Milano",
+      initials: "CB",
+      bio: "Fifteen years preparing dichiarazioni for families and small firms. She teaches tax the way she explains it at the desk: one form, one reason.",
     },
     lessons: [
-      {
-        slug: "the-page-as-a-room",
-        title: "The page as a room",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary:
-          "Why margins are load-bearing, and how to give a paragraph a place to stand.",
-        transcript:
-          "A page is not a canvas you fill. It is a room you furnish. The first decision is not the typeface — it is the volume of air around the text.\n\nMargins are walls. If they are too thin the room feels cheap; if they are theatrical the text looks abandoned. I start every layout by deciding how a reader will enter: top-left, then a measured walk down the column.\n\nToday we will set a single essay page with one typeface, two sizes, and no color. If the page still holds, the architecture is sound.",
-      },
-      {
-        slug: "weight-and-contrast",
-        title: "Weight and contrast",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Pairing roman and italic, and when contrast becomes noise.",
-        transcript:
-          "Contrast is how type speaks in more than one register. A regular roman is conversation. A well-cut italic is aside. Bold is a raised voice — use it as if someone is in the next room.\n\nWe will look at three pairings from the same family, then one deliberate mismatch. The goal is not novelty. It is a hierarchy a tired reader can feel without reading a single word.",
-      },
-      {
-        slug: "the-measure",
-        title: "The measure",
-        durationSeconds: 888,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Line length, leading, and the pace of a sentence.",
-        transcript:
-          "Sixty-six characters is not a rule. It is a starting temperature. A long line on a quiet page can be luxurious; the same line in a dense essay becomes a slog.\n\nLeading is the floor between storeys. Tighten it and the paragraph becomes a block. Open it and the eye starts to wander. We will set the same paragraph at four measures and listen to how the sentence changes speed.",
-      },
-      {
-        slug: "display-and-silence",
-        title: "Display and silence",
-        durationSeconds: 734,
-        sources: [...V.clip],
-        preview: false,
-        summary: "Titles that earn their size, and the value of leaving type alone.",
-        transcript:
-          "Display type is architecture seen from the street. It should be specific, a little severe, and never louder than the work it introduces.\n\nThe most common error is to treat a title as a poster. Give it one decision — size, or weight, or a slightly unexpected cut — and then stop. Silence around a word is what makes the word expensive.",
-      },
+      L("the-three-taxes", "The three taxes you will meet", 11, V.bunny, "IRPEF, IVA, and IMU in plain language.", "Italy does not have one tax. You meet IRPEF on income, IVA on most purchases, and IMU if you own a home. Learn which one applies to a paycheck, a shop receipt, and a second house — and which office owns each conversation.", true),
+      L("codice-fiscale", "Codice fiscale and your file", 9, V.sintel, "Why that 16-character code follows every form.", "The codice fiscale is not a password. It is the key the state uses to find you. We read a sample code, see where it appears on a paycheck, and what happens if the spelling of your name does not match the tessera sanitaria."),
+      L("residenza-e-domicilio", "Residenza, domicilio, and tax home", 12, V.clip, "Where you live on paper versus where you sleep.", "Residenza is the comune that claims you. Domicilio is where mail should go. For tax, the important question is where your centre of life sits. This lesson shows how a move between cities, or a year abroad, changes the next dichiarazione."),
+      L("how-the-state-writes", "How Agenzia delle Entrate writes to you", 10, V.flower, "Reading a cartella, an avviso, and the cassetto fiscale.", "A letter from the tax agency is not automatically a fine. We open a sample avviso bonario, a cartella, and the cassetto fiscale online, and decide what needs an answer this week versus what can wait for the CAF."),
     ],
   },
   {
-    slug: "light-in-the-frame",
-    title: "Light in the Frame",
-    subtitle: "Seeing illumination before you expose it.",
+    slug: "dichiarazione-dei-redditi",
+    title: "Dichiarazione dei redditi",
+    subtitle: "730, Redditi PF, and the calendar that actually matters.",
     description:
-      "Elias Cho teaches you to read a room before you lift a camera. Shape, falloff, and the moral temperature of a highlight. A foundations course for anyone who wants photographs that feel observed rather than lit.",
-    category: "Photography",
-    level: "Foundations",
-    poster: "/courses/light.jpg",
-    instructor: {
-      name: "Elias Cho",
-      title: "Cinematographer",
-      initials: "EC",
-      bio: "Elias has lit features, still campaigns, and two seasons of a chamber drama. He teaches the way he works: one source, then the decision to add nothing.",
-    },
-    lessons: [
-      {
-        slug: "one-window",
-        title: "One window",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "North light, falloff, and why the first source is usually enough.",
-        transcript:
-          "Find a window. Turn everything else off. Now look at the floor, the far wall, and the side of a face if someone is sitting there. That gradient is your entire education for the next hour.\n\nWe will place a subject three distances from the same window and watch the contrast change. The lesson is not the meter reading. It is learning to see the falloff before you expose it.",
-      },
-      {
-        slug: "hard-and-soft",
-        title: "Hard and soft",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Size of source relative to subject, not the modifier’s brand.",
-        transcript:
-          "Softness is a relationship, not a product. A large source close to the subject wraps. The same source far away becomes a hard disk in the sky.\n\nWe will take one lamp and change only its distance and the size of the diffusion. You will leave knowing why a cloudy day is a giant softbox and a bare bulb is a tiny sun.",
-      },
-      {
-        slug: "the-shadow-has-a-job",
-        title: "The shadow has a job",
-        durationSeconds: 888,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Protecting darkness so the highlight can mean something.",
-        transcript:
-          "A photograph without a true dark is a room with every lamp on. Shadows are not a problem to lift. They are the other half of the sentence.\n\nToday we expose for the highlight we care about and let the rest recede. If you are uneasy, good. That unease is taste forming.",
-      },
-      {
-        slug: "practicals",
-        title: "Practicals",
-        durationSeconds: 60,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Lamps that belong in the picture, and how to make them work.",
-        transcript:
-          "A practical is a light the audience is allowed to see. A desk lamp, a neon, a television. It gives the frame a reason to be bright in one place.\n\nWe will dim, gel, and sometimes hide a second source behind the practical so it feels motivated. The goal is that no one asks where the light is coming from.",
-      },
-    ],
-  },
-  {
-    slug: "interface-rhythm",
-    title: "Interface Rhythm",
-    subtitle: "Spacing, cadence, and the pace of a product.",
-    description:
-      "June Park’s course on product systems. Not a component library tour — a study of how interfaces breathe. You will leave with a spacing scale, a type ramp, and the judgment to break both.",
-    category: "Design",
+      "How to file an Italian tax return without drowning in acronyms. When to use the 730, when you need Redditi Persone Fisiche, which receipts to keep, and how a refund or a debito shows up.",
+    category: "Fisco e tasse",
     level: "Intermediate",
-    poster: "/courses/interface.jpg",
-    instructor: {
-      name: "June Park",
-      title: "Product designer",
-      initials: "JP",
-      bio: "June has led design systems at two infrastructure companies. She believes most products fail at the pause between actions, not at the chrome.",
-    },
-    lessons: [
-      {
-        slug: "a-scale-not-a-mood",
-        title: "A scale, not a mood",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "Why 4/8 spacing is a language, and how to keep it audible.",
-        transcript:
-          "A spacing scale is a grammar. Once the product can speak in fours and eights, every new screen is a sentence, not an invention.\n\nWe will take a noisy settings page and re-set it on a single scale. Nothing else changes. If it suddenly feels designed, you have your proof.",
-      },
-      {
-        slug: "type-that-works-for-a-living",
-        title: "Type that works for a living",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Ramps, weights, and the three sizes a product actually needs.",
-        transcript:
-          "Most products have too many type sizes and not enough contrast. I use three: a display for the page, a body for work, and a meta for the quiet facts.\n\nWe will throw away the extra ramps and listen. Hierarchy should be felt in the first second, before anyone reads a label.",
-      },
-      {
-        slug: "the-pause",
-        title: "The pause",
-        durationSeconds: 15,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Motion as punctuation, not applause.",
-        transcript:
-          "If everything animates, nothing is saying anything. Motion is punctuation. A 150-millisecond fade is a comma. A panel that takes 400 is a paragraph break.\n\nWe will strip a flow of its flourishes and add back only the motions that tell the user where they went.",
-      },
-      {
-        slug: "breaking-the-system",
-        title: "Breaking the system",
-        durationSeconds: 734,
-        sources: [...V.clip],
-        preview: false,
-        summary: "When a one-off is earned, and how to keep it from spreading.",
-        transcript:
-          "Systems exist so exceptions can be rare and expensive. A marketing hero may break the type ramp. A settings toggle may not.\n\nThe last lesson is judgment: write down why you broke the rule, then decide if the reason will still be true in six months.",
-      },
-    ],
-  },
-  {
-    slug: "the-written-line",
-    title: "The Written Line",
-    subtitle: "Sentences that carry weight without raising their voice.",
-    description:
-      "Helen Ibarra on the essay, the memo, and the line that has to survive being read twice. A craft course for people who write for a living and are tired of performing intelligence.",
-    category: "Writing",
-    level: "Foundations",
     poster: "/courses/written.jpg",
     instructor: {
-      name: "Helen Ibarra",
-      title: "Essayist and editor",
-      initials: "HI",
-      bio: "Helen has edited a national magazine and published two collections. She teaches cutting as a form of hospitality to the reader.",
+      name: "Chiara Benedetti",
+      title: "Commercialista, Milano",
+      initials: "CB",
+      bio: "She has filed thousands of 730s. This course is the conversation she wishes every client had before April.",
     },
     lessons: [
-      {
-        slug: "begin-in-the-middle",
-        title: "Begin in the middle",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "Opening sentences that assume a serious reader.",
-        transcript:
-          "Do not warm up in public. The first sentence should already be at work. Context can arrive in the second paragraph, or never.\n\nWe will take five weak openings — the weather, the dictionary, the personal credential — and start each piece one paragraph later. Most essays improve by amputation.",
-      },
-      {
-        slug: "cut-for-heat",
-        title: "Cut for heat",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Removing the sentence that is only there to impress you.",
-        transcript:
-          "A draft is a room you over-furnished. Cutting is not cruelty. It is making a path so the reader can walk without knocking into your cleverness.\n\nRead aloud. Every time you hear yourself perform, mark the line. Then decide if the thought survives without the costume.",
-      },
-      {
-        slug: "the-honest-clause",
-        title: "The honest clause",
-        durationSeconds: 15,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Hedging, authority, and when uncertainty is the point.",
-        transcript:
-          "Writers hedge because they are afraid of being caught. Readers can hear that fear. Either know, or say you do not.\n\nWe will rewrite a cautious memo into something a colleague can act on. Precision is not the same as a pile of caveats.",
-      },
-      {
-        slug: "ending-without-a-bow",
-        title: "Ending without a bow",
-        durationSeconds: 888,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Last lines that leave a residue instead of a summary.",
-        transcript:
-          "A summary ending is a receipt. The reader already paid. End on an image, a fact, or a slightly more difficult version of the first sentence.\n\nIf you must conclude, conclude one inch past the argument — the implication, not the recap.",
-      },
+      L("730-or-redditi", "730 or Redditi PF?", 10, V.sintel, "Choosing the right return for an employee, a pension, or a VAT number.", "If you have only employment or pension income, the 730 is usually enough and the employer can withhold the balance. A partita IVA, foreign income, or a rental often means Redditi PF. We sort five typical lives into the right form.", true),
+      L("the-calendar", "The real calendar", 8, V.bunny, "Precompilato, CAF rush, and payment dates.", "The precompilato opens in spring. CAF appointments vanish in May. Payments (or refunds) land on the paycheck or F24 later in the year. Miss the window and you file late, not never — this lesson shows the cost of each delay."),
+      L("what-to-keep", "Receipts that actually change the tax", 13, V.clip, "Healthcare, rent, university, and the rest of the myths.", "Not every supermarket receipt is a deduction. We keep healthcare above the franchise, rent for students, university fees, and renovation bonuses — and throw away the rest of the shoebox."),
+      L("refund-or-debt", "Refund or debito", 9, V.flower, "Reading the result and what your employer will do.", "A 730 can return money on the July paycheck or take extra withholding. We read a sample esito, explain conguaglio, and when you should walk into a CAF instead of clicking confirm."),
     ],
   },
   {
-    slug: "color-after-dark",
-    title: "Color After Dark",
-    subtitle: "Restraint, temperature, and the palette that holds.",
+    slug: "come-funziona-il-caf",
+    title: "How a CAF works",
+    subtitle: "Appointments, documents, and what the desk can (and cannot) do.",
     description:
-      "Theo Maren’s color course for designers and photographers who have too many swatches. You will build one palette, learn to grade a still, and stop treating saturation as enthusiasm.",
-    category: "Craft",
-    level: "Intermediate",
-    poster: "/courses/color.jpg",
+      "CAF is not a government office — it is the place most people actually file. Luca Ferrante shows how to book, what to bring, how patronage unions differ, and how to read the receipt they give you.",
+    category: "CAF e Patronato",
+    level: "Foundations",
+    poster: "/courses/interface.jpg",
     instructor: {
-      name: "Theo Maren",
-      title: "Colorist",
-      initials: "TM",
-      bio: "Theo grades commercials and independent features. He is known for palettes that feel like a room at dusk rather than a look-up table.",
+      name: "Luca Ferrante",
+      title: "CAF operator, Torino",
+      initials: "LF",
+      bio: "He has sat on both sides of the glass: as a clerk and as the person who trains new operators each spring.",
     },
     lessons: [
-      {
-        slug: "three-notes",
-        title: "Three notes",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "A working palette is a chord, not a drawer of paint.",
-        transcript:
-          "Pick a ground, a figure, and one accent. That is a palette. Everything else is a variation or a mistake.\n\nWe will mix a warm near-black, a paper light, and a single cool note, then apply it to a page, a still, and an interface. If it holds in all three, you can trust it.",
-      },
-      {
-        slug: "temperature",
-        title: "Temperature",
-        durationSeconds: 734,
-        sources: [...V.clip],
-        preview: false,
-        summary: "Warm and cool as story, not as a slider habit.",
-        transcript:
-          "Temperature is narrative. Warmth comes forward. Cool recedes, or it isolates. A face lit warm against a cool room is a person in a climate.\n\nWe will grade the same still two ways and talk about which story you are willing to tell.",
-      },
-      {
-        slug: "the-cost-of-saturation",
-        title: "The cost of saturation",
-        durationSeconds: 15,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Why loud color is expensive, and how to spend it once.",
-        transcript:
-          "Saturation is a shout. If every object shouts, the frame has no subject. I keep most of the picture near grey and spend color on the one thing I cannot afford to miss.\n\nDesaturate first. Then give the accent back, a little at a time, until it is enough.",
-      },
-      {
-        slug: "matching-a-room",
-        title: "Matching a room",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Making a set of images feel like they were taken in one climate.",
-        transcript:
-          "A series fails when each frame has its own weather. We will match five stills to one ground tone and one highlight color so they can sit on a wall together.\n\nThis is the unglamorous half of color: patience, and a reference print you refuse to abandon.",
-      },
+      L("what-a-caf-is", "What a CAF is", 8, V.clip, "Not INPS, not Agenzia delle Entrate — a help desk with a stamp.", "A CAF (centro di assistenza fiscale) prepares 730s, ISEE, and some bonuses under an agreement with the state. You do not need to be a member, but peak season is a queue. This lesson sets expectations before you walk in.", true),
+      L("the-folder", "The folder they want", 11, V.bunny, "CU, tessera sanitaria, rent contract, and healthcare receipts.", "Bring the CU (ex CUD), last year’s 730 if you have it, tessera sanitaria, a rent contract, and healthcare receipts already totaled. Photos on the phone are fine if they are readable. Missing the CU is the number-one bounce."),
+      L("isee-and-bonuses", "ISEE and family bonuses", 12, V.sintel, "When the CAF is the door to school, nursery, and assegno unico.", "ISEE is a photograph of the household, not a tax. Wrong household members wreck nursery fees and the assegno unico. We walk a simple family of three and a more complicated one with a parent abroad."),
+      L("after-the-stamp", "After they stamp it", 7, V.flower, "The ricevuta, the delegation, and who is responsible.", "You sign a delegation. The CAF transmits. Keep the ricevuta. If a number is wrong, both you and the CAF have a path to correct it — this lesson shows which errors are theirs and which are yours."),
     ],
   },
   {
-    slug: "building-with-intent",
-    title: "Building with Intent",
-    subtitle: "Frontend architecture that stays readable under pressure.",
+    slug: "patronato-diritti-e-pratiche",
+    title: "Patronato: rights and paperwork",
+    subtitle: "Pensions, unemployment, invalidità — the free desk next to the CAF.",
     description:
-      "Adrian Vale on structure: boundaries, data flow, and the discipline of naming. For engineers who can ship features and want the codebase to still make sense a year later.",
-    category: "Engineering",
-    level: "Advanced",
-    poster: "/courses/build.jpg",
-    instructor: {
-      name: "Adrian Vale",
-      title: "Staff engineer",
-      initials: "AV",
-      bio: "Adrian has led platform teams through two rewrites he now regrets and one he does not. He teaches the rewrite you can avoid.",
-    },
-    lessons: [
-      {
-        slug: "name-the-seam",
-        title: "Name the seam",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "Boundaries first, folders second.",
-        transcript:
-          "A codebase is a set of promises about what can change without asking permission. Those promises are seams. Folders are just labels for the seams you already decided.\n\nWe will take a tangled feature and draw the seams on paper before touching a file. If you cannot name the boundary, you are not ready to extract it.",
-      },
-      {
-        slug: "data-has-a-direction",
-        title: "Data has a direction",
-        durationSeconds: 888,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "One-way flow, and the cost of a hidden write.",
-        transcript:
-          "When two screens write the same record for different reasons, you have a conversation you cannot hear. Data should enter at the edge, change in one place, and leave as a view.\n\nWe will trace a bug that only exists because a component mutated a cache. Then we will make the write boring and visible.",
-      },
-      {
-        slug: "the-boring-path",
-        title: "The boring path",
-        durationSeconds: 15,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Choosing the design you can explain on a Tuesday.",
-        transcript:
-          "Cleverness has a half-life. The design you can explain to a tired colleague is the one that will survive the next hire.\n\nIf a pattern needs a preamble, it is probably the wrong pattern. Prefer the boring path, then spend your taste on the part the user can see.",
-      },
-      {
-        slug: "delete-with-confidence",
-        title: "Delete with confidence",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Dead code as a design smell, and how to retire it.",
-        transcript:
-          "Unused code is not free. It is a hallway people still walk down. Deletion is a design tool.\n\nWe will find a feature flag that outlived its experiment and remove the dead branch. The test is whether anyone notices. If they do not, you waited too long.",
-      },
-    ],
-  },
-  {
-    slug: "still-life-studio",
-    title: "Still Life Studio",
-    subtitle: "Objects, surfaces, and the patience of north light.",
-    description:
-      "Soren Hale’s studio practice for product and still-life work. Linen, ceramic, falloff, and the discipline of leaving an object alone until it looks like itself.",
-    category: "Photography",
+      "Patronato offices exist to claim social-security rights, not to file tax. Rosa Moretti covers NASpI, pensions, invalidità civile, and how a patronato talks to INPS for you at no charge.",
+    category: "CAF e Patronato",
     level: "Foundations",
     poster: "/courses/still.jpg",
     instructor: {
-      name: "Soren Hale",
-      title: "Still-life photographer",
-      initials: "SH",
-      bio: "Soren shoots for ceramicists and small publishers. His pictures are famous for looking unlit, which is the highest compliment he accepts.",
+      name: "Rosa Moretti",
+      title: "Patronato adviser, Napoli",
+      initials: "RM",
+      bio: "Twenty years of INPS practices. She is allergic to people paying for forms that are free.",
     },
     lessons: [
-      {
-        slug: "choose-the-object",
-        title: "Choose the object",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "What earns a frame, and what is only clutter.",
-        transcript:
-          "A still life is a conversation among three things at most. The fourth object is almost always an apology.\n\nWe will build a table with too much on it, then remove until the remaining pieces start to speak. If you are unsure, take the loudest thing away.",
-      },
-      {
-        slug: "cloth-and-ground",
-        title: "Cloth and ground",
-        durationSeconds: 30,
-        sources: [...V.rail],
-        preview: false,
-        summary: "Linen, paper, stone — and how a surface sets the climate.",
-        transcript:
-          "The ground is the weather. Raw linen is overcast. Dark stone is night. A sheet of paper is a clinic. Choose the climate before you place the object.\n\nIron the cloth or do not — both are decisions. Wrinkles are only a problem when they were not intended.",
-      },
-      {
-        slug: "height-and-respect",
-        title: "Height and respect",
-        durationSeconds: 653,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "Camera height as a moral choice about the object.",
-        transcript:
-          "Look down and the object becomes a diagram. Look across and it becomes a person. I prefer the height of a seated guest.\n\nWe will shoot the same bowl from three heights. Notice which one you would trust to tell the truth about the glaze.",
-      },
-      {
-        slug: "leave-it-alone",
-        title: "Leave it alone",
-        durationSeconds: 734,
-        sources: [...V.clip],
-        preview: false,
-        summary: "When the picture is finished, and the urge to add one more thing.",
-        transcript:
-          "The last move is usually the one that ruins it. Walk away. Come back. If you cannot remember what you were about to add, you were finished an hour ago.\n\nStill life is a practice of stopping. That is the whole craft, once the light is decent.",
-      },
+      L("caf-vs-patronato", "CAF vs Patronato", 8, V.flower, "Tax on the left, rights on the right.", "CAF files taxes and ISEE. Patronato files unemployment, pensions, maternity, and disability with INPS. Same building, different stamp. Knowing which door to open saves a week.", true),
+      L("naspi", "NASpI after a job ends", 12, V.sintel, "Who qualifies and the 68-day clock.", "NASpI is unemployment insurance, not a favour. You usually have 68 days from the last day of work. We list the documents, the DID, and why you should not wait for the employer to ‘send something’."),
+      L("pension-basics", "Reading an estratto contributivo", 11, V.bunny, "Your INPS extract before you panic about retirement.", "The estratto contributivo is the state’s memory of your work. Gaps happen. Foreign contributions can count. This lesson is how to read the extract, not how to become a pension actuary."),
+      L("invalidita", "Invalidità civile, without the rumour mill", 10, V.clip, "The medical path, not the Facebook path.", "Invalidità civile starts with a doctor, then INPS, then a commission. A patronato books and follows. We separate rumours from the actual sequence so nobody sells you a shortcut."),
     ],
   },
   {
-    slug: "the-cut",
-    title: "The Cut",
-    subtitle: "Editing as listening, not as decoration.",
+    slug: "patente-b-quiz",
+    title: "Patente B Quiz",
+    subtitle: "Theory exam: signs, precedence, and the 20-error rule.",
     description:
-      "Nina Kessler on picture editing: rhythm, the ethical cut, and how to let a scene finish. For filmmakers and anyone who sequences images for a living.",
-    category: "Cinema",
-    level: "Advanced",
-    poster: "/courses/edit.jpg",
+      "A focused drill for the Italian driving-licence theory test. Marco De Santis covers the quiz format, the signs that fail people, urban vs extraurban rules, and how to sit the esame without wasting a booking.",
+    category: "Patente B",
+    level: "Foundations",
+    poster: "/courses/light.jpg",
     instructor: {
-      name: "Nina Kessler",
-      title: "Picture editor",
-      initials: "NK",
-      bio: "Nina has cut documentaries and two narrative features. She describes editing as hospitality: seating the audience, then knowing when to stop talking.",
+      name: "Marco De Santis",
+      title: "Autoscuola instructor, Bologna",
+      initials: "MD",
+      bio: "He has put more first-time drivers through the quiz than he can count. He teaches the exam that exists, not the one in the booklet from 2009.",
     },
     lessons: [
-      {
-        slug: "listen-to-the-dailies",
-        title: "Listen to the dailies",
-        durationSeconds: 596,
-        sources: [...V.bunny],
-        preview: true,
-        summary: "Assembly as an act of attention, not of taste-making.",
-        transcript:
-          "Before you cut, you watch everything. Not to hunt for the hero take — to hear what the footage is already doing. The film will tell you its rhythm if you do not talk over it.\n\nWe will assemble a two-minute scene in story order, no music, no polish. If it works ugly, it will work dressed.",
-      },
-      {
-        slug: "the-ethical-cut",
-        title: "The ethical cut",
-        durationSeconds: 888,
-        sources: [...V.sintel],
-        preview: false,
-        summary: "What you owe a subject when you rearrange their time.",
-        transcript:
-          "Every cut is a claim about what happened. In fiction that claim is style. In documentary it is a responsibility.\n\nWe will look at two assemblies of the same interview: one that clarifies, one that manufactures. The difference is often a single reaction shot.",
-      },
-      {
-        slug: "music-last",
-        title: "Music last",
-        durationSeconds: 15,
-        sources: [...V.flower],
-        preview: false,
-        summary: "Why temp scores lie, and how to cut picture first.",
-        transcript:
-          "Temp music is a narcotic. It will convince you a limp scene has a pulse. Cut silent until the picture has a cadence of its own. Then choose music that agrees, or argue with it on purpose.\n\nIf the scene dies without the score, the scene was never alive.",
-      },
-      {
-        slug: "let-it-finish",
-        title: "Let it finish",
-        durationSeconds: 734,
-        sources: [...V.clip],
-        preview: false,
-        summary: "Holding a shot past comfort, and the courage of an ending.",
-        transcript:
-          "Editors cut early because they are afraid of boring someone. Audiences are more often bored by restlessness than by a shot that is allowed to complete its thought.\n\nHold. Count. Cut on the breath after the gesture, not on the gesture. That extra half-second is where the film becomes adult.",
-      },
+      L("the-exam", "How the quiz actually works", 9, V.clip, "30 sheets, 20 errors, and the timer.", "The ministerial quiz is 30 questions, twenty minutes, and you fail at the 4th error on many sheets — practice as if four is the ceiling. Phones stay outside. This is the room, not the theory of driving.", true),
+      L("signs-that-fail", "Signs that fail people", 14, V.bunny, "Precedence, divieto, and the ones that look friendly.", "Stop vs dare precedenza. Zona traffico limitato. The triangular warning that is not an order. We drill the twelve signs that generate half the fails in a typical autoscuola."),
+      L("citta-e-fuori", "In town and out of town", 12, V.sintel, "Limits, lights, and the right lane.", "50 in town unless signed. 90 / 110 / 130 outside. Who has the lane on a roundabout. This lesson is the moving exam sitting inside the theory test."),
+      L("exam-day", "Exam day, no theatre", 7, V.flower, "Documents, booking, and what to do if you fail.", "Bring identity document and the foglio rosa. Arrive early. If you fail, you wait and book again — the autoscuola is not punishing you. We close with a 10-question warm-up ritual."),
+    ],
+  },
+  {
+    slug: "italiano-a1",
+    title: "Italiano A1",
+    subtitle: "First words for the comune, the doctor, and the supermarket.",
+    description:
+      "A1 Italian for people who already live here. Elena Ricci teaches the sentences you need at the anagrafe, the pharmacy, and the bus — with slow audio and the exact forms you will hear.",
+    category: "Lingua italiana",
+    level: "Foundations",
+    poster: "/courses/type.jpg",
+    instructor: {
+      name: "Elena Ricci",
+      title: "Italian teacher, CPIA Roma",
+      initials: "ER",
+      bio: "She teaches adult newcomers in public evening classes. No textbook tourism — only language that unlocks an office.",
+    },
+    lessons: [
+      L("io-sono", "Io sono, io abito", 10, V.bunny, "Name, country, address, and the verb essere.", "Io sono Amira. Vengo dal Marocco. Abito in via Garibaldi 12. We lock essere and abitare, numbers for the address, and how to spell a name at a sportello.", true),
+      L("in-ufficio", "In ufficio", 12, V.sintel, "Permesso, appuntamento, documento, fotocopia.", "The clerk will ask for a document, a photocopy, and a date. This lesson is the ten nouns of every Italian counter, plus ‘non ho capito, può ripetere?’ said without apology."),
+      L("dal-medico", "Dal medico e in farmacia", 11, V.clip, "Symptoms, appointments, and the ricetta.", "Mi fa male qui. Ho la febbre. Serve la ricetta. A1 medical Italian is small and urgent. We practise pain, days, and the difference between medico di base and pronto soccorso."),
+      L("comprare", "Comprare e pagare", 9, V.flower, "Prices, kilos, and ‘il resto’.", "Quanto costa? Vorrei etto di… Posso pagare con la carta? Supermarket Italian plus the market stall. You leave able to buy dinner without pointing."),
+    ],
+  },
+  {
+    slug: "italiano-a2",
+    title: "Italiano A2",
+    subtitle: "Past tense, appointments, and letters from the comune.",
+    description:
+      "A2 takes you from survival sentences to short stories about your week — and to reading a simple letter from the school or the ASL. Built for the permesso / citizenship language bar.",
+    category: "Lingua italiana",
+    level: "Intermediate",
+    poster: "/courses/color.jpg",
+    instructor: {
+      name: "Elena Ricci",
+      title: "Italian teacher, CPIA Roma",
+      initials: "ER",
+      bio: "Her A2 groups sit the official exam each June. She teaches the passato prossimo first because life happens in the past tense.",
+    },
+    lessons: [
+      L("passato-prossimo", "Passato prossimo that you will actually use", 13, V.sintel, "Essere / avere and the week you just lived.", "Ieri ho lavorato. Sono andata in comune. A2 is the past. We pick the twenty verbs of a normal week and stop conjugating gardens of irregulars you will not say.", true),
+      L("prenotare", "Prenotare, spostare, disdire", 10, V.clip, "Phone and email for an appointment.", "Vorrei prenotare. Posso spostare a mercoledì? Devo disdire. The verbs of the CUP, the school, and the CAF, plus a short email you can copy."),
+      L("leggere-una-lettera", "Reading a letter from the comune", 11, V.bunny, "Oggetto, protocollo, and what they want from you.", "Italian bureaucracy writes in a dialect. We read a real-style convocazione: oggetto, protocollo, scadenza. You learn which paragraph is the action and which is decoration."),
+      L("exam-a2", "The A2 exam, calmly", 9, V.flower, "Listening, reading, writing a note, a short talk.", "Four parts, none of them literature. We walk a sample paper and a two-minute speaking prompt about your family and your job."),
+    ],
+  },
+  {
+    slug: "spoken-italian",
+    title: "Spoken Italian",
+    subtitle: "Speed, fillers, and how people actually talk at the bar.",
+    description:
+      "Classroom Italian is slow. The street is not. Fatima El Amrani trains your ear for clipped verbs, courtesy formulas, and the five-minute conversation that makes a neighbour into a contact.",
+    category: "Lingua italiana",
+    level: "Intermediate",
+    poster: "/courses/hero.jpg",
+    instructor: {
+      name: "Fatima El Amrani",
+      title: "Conversation coach, Brescia",
+      initials: "FE",
+      bio: "She learned Italian as an adult in a factory canteen. She teaches speaking the way she needed it: fast, kind, and useful after 18:00.",
+    },
+    lessons: [
+      L("slow-to-street", "From classroom speed to street speed", 10, V.clip, "Why natives eat the vowels — and how to still catch the noun.", "Italians drop endings and run prepositions together. We listen to the same sentence three times, slower each pass, until the noun is obvious even when the verb is a blur.", true),
+      L("cortesia", "Permesso, prego, figurati", 8, V.flower, "The politeness that opens doors.", "Courtesy is grammar in Italy. Permesso to enter. Prego as an answer. Figurati when someone thanks you. Get these wrong and people think you are angry, not foreign."),
+      L("cinque-minuti", "A five-minute conversation", 12, V.bunny, "Work, kids, the weather, and a plan for Saturday.", "A neighbour will not ask about the subjunctive. They will ask if you work nearby and whether the child likes the school. We script and then unscipt that talk."),
+      L("al-telefono", "On the phone without panic", 9, V.sintel, "Saying who you are, why you called, and asking them to slow down.", "Pronto. Sono… chiamo per l’appuntamento delle dieci. Può parlare più lentamente? Phone Italian is a skill of its own. We practise two calls: the doctor and the landlord."),
+    ],
+  },
+  {
+    slug: "sportello-immigrazione",
+    title: "Sportello Immigrazione",
+    subtitle: "Permesso di soggiorno, Questura, and the kit from the post office.",
+    description:
+      "The immigration desk, step by step. Giulia Conti covers the post-office kit, fingerprints, rinnovo, ricongiungimento, and how to read a convocazione without paying a fixer.",
+    category: "Immigrazione",
+    level: "Foundations",
+    poster: "/courses/edit.jpg",
+    instructor: {
+      name: "Giulia Conti",
+      title: "Sportello Immigrazione, Firenze",
+      initials: "GC",
+      bio: "Municipal immigration desk. She has watched too many families pay for photocopies of forms that are free on the ministry site.",
+    },
+    lessons: [
+      L("the-map", "The map: Questura, Prefettura, Poste", 9, V.sintel, "Who stamps what, and who only takes the envelope.", "Poste sells the kit and sends it. Questura does fingerprints and the card. Prefettura handles some family and work flows. Knowing the triangle stops you from queueing at the wrong door.", true),
+      L("primo-permesso", "First permesso", 13, V.bunny, "Work, family, and study — the three common doors.", "A first permit is a story: contract or family certificate plus housing plus income. We walk a worker, a spouse, and a student, and list the exact photocopies for each."),
+      L("rinnovo", "Rinnovo before it expires", 11, V.clip, "The 60-day window and what to do if you are late.", "Renew 60 days before expiry. Late is possible with a reason, not with a shrug. We look at a sample ricevuta — the paper that lets you stay and work while you wait."),
+      L("no-fixer", "No fixer", 8, V.flower, "Free help: patronato, sportello, and the ministry site.", "Nobody legitimate sells a ‘faster fingerprint day’. This lesson names the free desks, the official PDFs, and the three questions that expose a scam."),
+    ],
+  },
+  {
+    slug: "italian-business-system",
+    title: "Italian business system",
+    subtitle: "Partita IVA, Camera di Commercio, INPS, and the first invoice.",
+    description:
+      "How a small activity is born in Italy. Paolo Marino covers choosing a regime, opening a partita IVA, registering with the chamber of commerce, and sending the first e-fattura without a panic attack.",
+    category: "Lavoro e impresa",
+    level: "Intermediate",
+    poster: "/courses/still.jpg",
+    instructor: {
+      name: "Paolo Marino",
+      title: "Business consultant, Padova",
+      initials: "PM",
+      bio: "He opens small firms for artisans and freelancers. He would rather you stay in regime forfettario than buy software you do not need.",
+    },
+    lessons: [
+      L("partita-iva", "Do you need a partita IVA?", 10, V.flower, "Occasional work versus a real activity.", "A few invoices a year can stay occasional. A regular activity needs a VAT number. Crossing the line without one is the expensive mistake. We draw it with three examples.", true),
+      L("forfettario", "Regime forfettario", 12, V.sintel, "The flat tax most newcomers should meet first.", "Forfettario is a simplified box: a coefficient, a substitute tax, no IVA on the invoice. It is not forever and it has income ceilings. This lesson is whether you fit, not a love letter to the regime."),
+      L("camera-inps", "Camera di Commercio and INPS", 11, V.bunny, "The two registrations people forget.", "A shop or a craft needs the chamber of commerce. Almost everyone who works alone pays INPS. ComUnica can do both. We look at the receipts you should leave with."),
+      L("prima-fattura", "The first e-fattura", 9, V.clip, "SDI, XML, and a simple invoice that will not bounce.", "Italian invoices travel through the Sistema di Interscambio. You do not email a PDF to a company and call it done. We build one invoice in a free tool and read the stato SDI."),
     ],
   },
 ];

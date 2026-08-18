@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Search } from "lucide-react";
 import { useState } from "react";
+import { BrandMark } from "@/components/brand-mark";
 import { AuthSlot } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -53,14 +54,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
           <Menu className="size-5" />
         </Button>
 
-        <Link to="/" className="flex shrink-0 items-center gap-2 text-on-header">
-          <span className="grid size-7 place-items-center rounded-sm bg-primary">
-            <svg viewBox="0 0 12 12" className="size-3.5 fill-primary-fg" aria-hidden="true">
-              <path d="M3 1.6v8.8L11 6z" />
-            </svg>
-          </span>
-          <span className="text-lg font-bold tracking-tight">Skillpath</span>
-        </Link>
+        <BrandMark onDark compact={false} />
 
         <div className="relative hidden md:block">
           <button
@@ -101,7 +95,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search for anything"
+              placeholder="Search CAF, A2, Patente B…"
               className="h-11 w-full rounded-full border border-line-strong bg-surface pr-4 pl-10 text-sm text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
             />
           </label>
@@ -128,7 +122,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="bg-surface text-fg">
           <SheetHeader>
-            <SheetTitle>Skillpath</SheetTitle>
+            <SheetTitle>National Education Center</SheetTitle>
           </SheetHeader>
           <form onSubmit={submitSearch} className="mt-4">
             <label className="relative block">
@@ -136,7 +130,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search for anything"
+                placeholder="Search CAF, A2, Patente B…"
                 className="h-11 w-full rounded-full border border-line bg-elevated pr-4 pl-10 text-sm text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               />
             </label>

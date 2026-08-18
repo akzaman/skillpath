@@ -31,7 +31,7 @@ export const Route = createFileRoute("/course/$slug")({
   component: CoursePage,
   notFoundComponent: CourseMissing,
   head: ({ loaderData }) => ({
-    meta: [{ title: `${loaderData?.course.title ?? "Course"} | Skillpath` }],
+    meta: [{ title: `${loaderData?.course.title ?? "Course"} | National Education Center` }],
   }),
 });
 
@@ -41,7 +41,7 @@ function CourseMissing() {
       <SiteHeader />
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-6 text-center">
         <h1 className="text-3xl font-bold tracking-tight">Course not found</h1>
-        <p className="mt-2 text-sm text-muted">That course is not on Skillpath.</p>
+        <p className="mt-2 text-sm text-muted">That course is not in the catalogue.</p>
         <Button asChild className="mt-6">
           <Link to="/catalog">Browse courses</Link>
         </Button>

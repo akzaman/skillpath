@@ -65,12 +65,12 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
   return (
     <div className="w-full max-w-sm">
       <h1 className="mt-1 text-2xl font-bold tracking-tight">
-        {mode === "signin" ? "Log in to your account" : "Sign up and start learning"}
+        {mode === "signin" ? "Log in to the Centre" : "Create your student account"}
       </h1>
       <p className="mt-2 text-sm text-muted">
         {mode === "signin"
-          ? "Pick up a lecture, keep your notes, and track progress."
-          : "Create a free account to enroll and save your place."}
+          ? "Pick up a lecture and keep your place at the desk."
+          : "Create a free account to enroll in a mini-course."}
       </p>
 
       {authEnabled && socialSignInEnabled() ? (

@@ -37,7 +37,7 @@ function HomePage() {
     : null;
 
   const bestsellers = courses.filter((course) => getMarket(course.slug).badge === "Bestseller");
-  const design = courses.filter((course) => course.category === "Design");
+  const language = courses.filter((course) => course.category === "Lingua italiana");
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -46,12 +46,15 @@ function HomePage() {
         <section className="bg-header text-on-header">
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:py-16">
             <div>
-              <h1 className="max-w-xl text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl">
-                Learn anything. On your schedule.
+              <p className="text-[11px] font-semibold tracking-[0.2em] text-badge uppercase">
+                National Education Center · Italy
+              </p>
+              <h1 className="mt-3 max-w-xl text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl">
+                Learn Italy. Handle the paperwork. Speak with confidence.
               </h1>
               <p className="mt-4 max-w-lg text-base text-on-header/75">
-                Video courses from working practitioners. Students learn. Teachers publish.
-                Admins run the school.
+                Mini-courses for the tax system, dichiarazione, CAF, Patronato, Patente B,
+                Italian A1–A2, spoken Italian, Sportello Immigrazione, and starting a business.
               </p>
               <form
                 className="relative mt-6 max-w-lg"
@@ -67,7 +70,7 @@ function HomePage() {
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="What do you want to learn?"
+                  placeholder="Search CAF, A2, Patente B, dichiarazione…"
                   className="h-14 w-full rounded-sm border-0 bg-surface pr-4 pl-12 text-base text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                 />
               </form>
@@ -109,6 +112,26 @@ function HomePage() {
           </div>
         </nav>
 
+        <section className="border-b border-line bg-surface">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap gap-2 px-4 py-3 sm:px-6">
+            {[
+              "Agenzia delle Entrate",
+              "CAF",
+              "Patronato",
+              "Questura",
+              "Autoscuola",
+              "CPIA",
+            ].map((desk) => (
+              <span
+                key={desk}
+                className="rounded-full border border-line bg-bg px-3 py-1 text-xs font-medium text-muted"
+              >
+                {desk}
+              </span>
+            ))}
+          </div>
+        </section>
+
         {!isPending && user && resume?.course ? (
           <section className="border-b border-line bg-elevated">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
@@ -134,9 +157,9 @@ function HomePage() {
         ) : null}
 
         <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6">
-          <h2 className="text-2xl font-bold">Learners are viewing</h2>
+          <h2 className="text-2xl font-bold">Open this week</h2>
           <p className="mt-1 text-sm text-muted">
-            Courses people on Skillpath are taking this week.
+            The desks people are sitting down at right now.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {courses.slice(0, 4).map((course) => (
@@ -148,7 +171,7 @@ function HomePage() {
         {bestsellers.length > 0 ? (
           <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
             <div className="flex items-end justify-between gap-4">
-              <h2 className="text-2xl font-bold">Bestsellers</h2>
+              <h2 className="text-2xl font-bold">Most requested</h2>
               <Link to="/catalog" className="text-sm font-bold text-primary hover:underline">
                 Show all
               </Link>
@@ -161,11 +184,11 @@ function HomePage() {
           </section>
         ) : null}
 
-        {design.length > 0 ? (
+        {language.length > 0 ? (
           <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
-            <h2 className="text-2xl font-bold">Featured in Design</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {design.map((course) => (
+            <h2 className="text-2xl font-bold">Lingua italiana</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {language.map((course) => (
                 <CourseCard key={course.slug} course={course} />
               ))}
             </div>
@@ -178,17 +201,17 @@ function HomePage() {
               {
                 icon: MonitorPlay,
                 title: "Students",
-                body: "Enroll, watch, take notes, and pick up exactly where you stopped.",
+                body: "Enroll in a mini-course, watch at your pace, and pick up the exact lesson you left.",
               },
               {
                 icon: Award,
                 title: "Teachers",
-                body: "Publish a course from the studio. Track students and keep drafts private.",
+                body: "CAF operators, instructors, and sportello staff can publish a course from the studio.",
               },
               {
                 icon: Infinity,
                 title: "Admins",
-                body: "The first account is admin. Promote teachers and run the catalog.",
+                body: "The centre manager promotes teachers and keeps the catalog honest.",
               },
             ].map((item) => (
               <div key={item.title} className="flex gap-4">

@@ -2,24 +2,24 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-bg: #f7f9fa;
-  --color-surface: #ffffff;
-  --color-elevated: #f1f2f4;
-  --color-fg: #1c1d1f;
-  --color-muted: #6a6f73;
-  --color-subtle: #9da3a8;
-  --color-line: #d1d7dc;
-  --color-line-strong: #6a6f73;
-  --color-primary: #6d28d9;
+  --color-bg: #f4f1ea;
+  --color-surface: #fffcf6;
+  --color-elevated: #ebe6db;
+  --color-fg: #122033;
+  --color-muted: #5b6573;
+  --color-subtle: #8b93a0;
+  --color-line: #d8d2c4;
+  --color-line-strong: #5b6573;
+  --color-primary: #0b4f3a;
   --color-primary-fg: #ffffff;
-  --color-primary-deep: #5b21b6;
-  --color-header: #1c1d1f;
-  --color-on-header: #ffffff;
-  --color-star: #b4690e;
-  --color-badge: #eceb98;
-  --color-badge-fg: #3d3c0a;
-  --color-ring: #6d28d9;
-  --color-danger: #b32d0f;
+  --color-primary-deep: #083828;
+  --color-header: #0c2340;
+  --color-on-header: #f6f1e6;
+  --color-star: #b45309;
+  --color-badge: #f0d58a;
+  --color-badge-fg: #3f2d08;
+  --color-ring: #0b4f3a;
+  --color-danger: #9b1c1c;
 
   --color-background: var(--color-bg);
   --color-foreground: var(--color-fg);

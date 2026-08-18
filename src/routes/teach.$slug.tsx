@@ -36,7 +36,7 @@ import { useProfile } from "@/lib/use-profile";
 
 export const Route = createFileRoute("/teach/$slug")({
   component: EditCoursePage,
-  head: () => ({ meta: [{ title: "Edit course — Skillpath" }] }),
+  head: () => ({ meta: [{ title: "Edit course — National Education Center" }] }),
 });
 
 function EditCoursePage() {

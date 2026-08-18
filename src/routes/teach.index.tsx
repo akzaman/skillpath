@@ -16,7 +16,7 @@ import { useProfile } from "@/lib/use-profile";
 
 export const Route = createFileRoute("/teach/")({
   component: TeachPage,
-  head: () => ({ meta: [{ title: "Teach — Skillpath" }] }),
+  head: () => ({ meta: [{ title: "Teach — National Education Center" }] }),
 });
 
 function TeachPage() {
@@ -70,7 +70,7 @@ function TeachPage() {
       <div className="flex min-h-dvh flex-col">
         <SiteHeader />
         <main className="mx-auto w-full max-w-xl flex-1 px-4 py-12">
-          <h1 className="text-3xl font-bold tracking-tight">Teach on Skillpath</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Teach at the Centre</h1>
           <p className="mt-2 text-muted">
             Open the studio to publish courses, add lectures, and see who is enrolled.
           </p>

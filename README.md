@@ -1,8 +1,9 @@
-# Skillpath
+# National Education Center
 
-Video course marketplace — students learn, teachers publish, admins run the school.
+Mini-courses for life in Italy — tax, dichiarazione, CAF, Patronato, Patente B, Italian A1–A2, spoken Italian, Sportello Immigrazione, and business.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/akzaman/skillpath&project-name=skillpath&repository-name=skillpath&env=BETTER_AUTH_SECRET,BETTER_AUTH_URL,VITE_AUTH_ENABLED&envDescription=Auth%20settings.%20Add%20Neon%20from%20Storage%20for%20DATABASE_URL.)
+
 
 ## Stack
 

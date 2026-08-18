@@ -34,7 +34,7 @@ export const Route = createFileRoute("/watch/$courseSlug/$lessonSlug")({
       {
         title: loaderData
           ? `${loaderData.lesson.title} — ${loaderData.course.title}`
-          : "Lesson — Skillpath",
+          : "Lesson — National Education Center",
       },
     ],
   }),

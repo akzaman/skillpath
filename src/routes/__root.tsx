@@ -11,10 +11,10 @@ import { Toaster } from "sonner";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { Button } from "@/components/ui/button";
 import { AuthProvider } from "@/lib/auth/provider";
+import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 import { createServerFn } from "@tanstack/react-start";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Skillpath";
 const host = import.meta.env.VITE_PUBLIC_HOSTNAME;
 const ogImage = host ? `https://${host}/og.jpg` : undefined;
 
@@ -33,16 +33,16 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "Skillpath — video courses from practitioners. Learn design, photography, writing, cinema, and engineering.",
+        content: APP_DESCRIPTION,
       },
       { name: "apple-mobile-web-app-title", content: APP_NAME },
-      { name: "theme-color", content: "#1c1d1f" },
+      { name: "theme-color", content: "#0c2340" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: APP_NAME },
       {
         property: "og:description",
-        content: "A marketplace for video courses. Learn from practitioners, on your schedule.",
+        content: APP_DESCRIPTION,
       },
       ...(ogImage
         ? [
@@ -73,7 +73,7 @@ function RootNotFound() {
       <div>
         <p className="text-xs tracking-[0.16em] text-muted uppercase">404</p>
         <h1 className="mt-2 font-display text-4xl tracking-tight">Page not found</h1>
-        <p className="mt-2 text-sm text-muted">That page is not on Skillpath.</p>
+        <p className="mt-2 text-sm text-muted">That page is not at the National Education Center.</p>
         <Button asChild className="mt-6">
           <Link to="/">Return home</Link>
         </Button>

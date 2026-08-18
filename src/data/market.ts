@@ -19,239 +19,272 @@ export type Review = {
 };
 
 const DEFAULT_MARKET: MarketInfo = {
-  rating: 4.6,
-  reviews: 1284,
-  students: 18420,
-  price: 19.99,
-  listPrice: 84.99,
+  rating: 4.7,
+  reviews: 640,
+  students: 8200,
+  price: 19,
+  listPrice: 49,
   outcomes: [
-    "Build a complete working practice you can use on Monday",
-    "See the decisions behind the work, not just the steps",
-    "Leave with a standard you can hold your own work to",
+    "Walk into the right office with the right folder",
+    "Read the letter instead of paying a fixer",
+    "Use the official words the clerk expects",
   ],
   updatedLabel: "March 2026",
 };
 
 export const market: Record<string, MarketInfo> = {
-  "type-as-architecture": {
+  "sistema-fiscale-italiano": {
     rating: 4.8,
-    reviews: 12403,
-    students: 186540,
-    price: 16.99,
-    listPrice: 94.99,
+    reviews: 2140,
+    students: 18620,
+    price: 19,
+    listPrice: 59,
     badge: "Bestseller",
     updatedLabel: "February 2026",
     outcomes: [
-      "Set a page that holds with one typeface and two sizes",
-      "Choose measure, leading, and contrast with intent",
-      "Use display type without turning a title into a poster",
-      "Build a hierarchy a tired reader can feel instantly",
+      "Tell IRPEF, IVA, and IMU apart in one minute",
+      "Read your codice fiscale and know where it must match",
+      "Open a letter from Agenzia delle Entrate without panic",
+      "Know whether you need a CAF or a commercialista",
     ],
   },
-  "light-in-the-frame": {
+  "dichiarazione-dei-redditi": {
     rating: 4.7,
-    reviews: 8902,
-    students: 142110,
-    price: 18.99,
-    listPrice: 89.99,
-    badge: "Bestseller",
-    updatedLabel: "January 2026",
-    outcomes: [
-      "Read a room before you lift the camera",
-      "Control hardness by size and distance, not by gear",
-      "Protect shadow so a highlight can mean something",
-      "Motivate light with practicals that belong in the frame",
-    ],
-  },
-  "interface-rhythm": {
-    rating: 4.6,
-    reviews: 6421,
-    students: 97340,
-    price: 21.99,
-    listPrice: 99.99,
-    badge: "Highest rated",
-    updatedLabel: "April 2026",
-    outcomes: [
-      "Put a product on a single spacing scale",
-      "Cut a type ramp down to three working sizes",
-      "Use motion as punctuation, not applause",
-      "Know when a one-off is earned — and how to contain it",
-    ],
-  },
-  "the-written-line": {
-    rating: 4.8,
-    reviews: 5104,
-    students: 62180,
-    price: 14.99,
-    listPrice: 79.99,
-    badge: "Hot & new",
-    updatedLabel: "May 2026",
-    outcomes: [
-      "Open in the middle and stop warming up in public",
-      "Cut the sentence that only exists to impress you",
-      "Write a clause a colleague can act on",
-      "End without a recap or a bow",
-    ],
-  },
-  "color-after-dark": {
-    rating: 4.5,
-    reviews: 3880,
-    students: 44890,
-    price: 17.99,
-    listPrice: 84.99,
-    updatedLabel: "December 2025",
-    outcomes: [
-      "Build a three-note palette that holds on page and screen",
-      "Use temperature as story, not as a slider habit",
-      "Spend saturation once, on the thing that matters",
-      "Match a set of stills so they share one climate",
-    ],
-  },
-  "building-with-intent": {
-    rating: 4.7,
-    reviews: 7210,
-    students: 110430,
-    price: 22.99,
-    listPrice: 109.99,
+    reviews: 1688,
+    students: 14210,
+    price: 24,
+    listPrice: 69,
     badge: "Bestseller",
     updatedLabel: "March 2026",
     outcomes: [
-      "Name seams before you extract a folder",
-      "Give data one direction and one visible write",
-      "Choose the design you can explain on a Tuesday",
-      "Delete dead code with a test you can trust",
+      "Choose 730 or Redditi PF for your situation",
+      "Hit the real calendar, not the rumour one",
+      "Keep only the receipts that change the tax",
+      "Read a refund or a debito on the paycheck",
     ],
   },
-  "still-life-studio": {
+  "come-funziona-il-caf": {
     rating: 4.6,
-    reviews: 2940,
-    students: 33120,
-    price: 15.99,
-    listPrice: 74.99,
-    updatedLabel: "November 2025",
+    reviews: 980,
+    students: 12140,
+    price: 15,
+    listPrice: 39,
+    badge: "Hot & new",
+    updatedLabel: "April 2026",
     outcomes: [
-      "Choose three objects and stop adding a fourth",
-      "Pick a ground that sets the weather of the picture",
-      "Set camera height as a decision about respect",
-      "Know when the still life is finished",
+      "Book a CAF with the right folder the first time",
+      "Prepare CU, tessera, rent, and healthcare totals",
+      "File ISEE without wrecking the household photo",
+      "Keep the ricevuta and know who is responsible",
     ],
   },
-  "the-cut": {
+  "patronato-diritti-e-pratiche": {
+    rating: 4.8,
+    reviews: 870,
+    students: 9340,
+    price: 15,
+    listPrice: 39,
+    updatedLabel: "January 2026",
+    outcomes: [
+      "Use the patronato instead of paying for INPS forms",
+      "Start NASpI inside the 68-day window",
+      "Read an estratto contributivo",
+      "Begin invalidità civile on the official path",
+    ],
+  },
+  "patente-b-quiz": {
     rating: 4.9,
-    reviews: 4566,
-    students: 51880,
-    price: 19.99,
-    listPrice: 94.99,
+    reviews: 3210,
+    students: 24880,
+    price: 29,
+    listPrice: 79,
     badge: "Highest rated",
+    updatedLabel: "May 2026",
+    outcomes: [
+      "Sit the quiz knowing the 20-error rule",
+      "Recognise the twelve signs that fail people",
+      "Apply town and extra-urban limits correctly",
+      "Arrive on exam day with the right papers",
+    ],
+  },
+  "italiano-a1": {
+    rating: 4.8,
+    reviews: 2560,
+    students: 19840,
+    price: 19,
+    listPrice: 49,
+    badge: "Bestseller",
+    updatedLabel: "March 2026",
+    outcomes: [
+      "Say name, address, and country at a sportello",
+      "Ask for a photocopy, a date, and a repetition",
+      "Describe a simple symptom at the doctor",
+      "Buy food and ask for the rest in change",
+    ],
+  },
+  "italiano-a2": {
+    rating: 4.7,
+    reviews: 1740,
+    students: 13220,
+    price: 24,
+    listPrice: 59,
+    updatedLabel: "April 2026",
+    outcomes: [
+      "Tell last week in passato prossimo",
+      "Book, move, or cancel an appointment",
+      "Read a letter from the comune for the action line",
+      "Sit a sample A2 paper without theatre",
+    ],
+  },
+  "spoken-italian": {
+    rating: 4.6,
+    reviews: 1120,
+    students: 8760,
+    price: 19,
+    listPrice: 49,
+    badge: "Hot & new",
+    updatedLabel: "May 2026",
+    outcomes: [
+      "Catch the noun when natives run the vowels together",
+      "Use permesso, prego, and figurati correctly",
+      "Hold a five-minute talk with a neighbour",
+      "Make a phone call and ask them to slow down",
+    ],
+  },
+  "sportello-immigrazione": {
+    rating: 4.8,
+    reviews: 1890,
+    students: 16440,
+    price: 19,
+    listPrice: 55,
+    badge: "Bestseller",
     updatedLabel: "February 2026",
     outcomes: [
-      "Assemble a scene in story order before you polish",
-      "Hear the difference between a clarifying cut and a manufactured one",
-      "Cut picture first so temp music cannot lie to you",
-      "Hold a shot until the thought is complete",
+      "Know whether you need Poste, Questura, or Prefettura",
+      "Prepare a first permesso folder",
+      "Renew inside the 60-day window",
+      "Spot a fixer and use the free desk instead",
+    ],
+  },
+  "italian-business-system": {
+    rating: 4.5,
+    reviews: 640,
+    students: 5120,
+    price: 29,
+    listPrice: 89,
+    updatedLabel: "December 2025",
+    outcomes: [
+      "Decide if you need a partita IVA",
+      "Check whether forfettario fits",
+      "Register with Camera di Commercio and INPS",
+      "Send a first e-fattura through SDI",
     ],
   },
 };
 
 export const reviews: Record<string, Review[]> = {
-  "type-as-architecture": [
+  "sistema-fiscale-italiano": [
     {
-      name: "Priya Raman",
-      rating: 5,
-      date: "2 weeks ago",
-      body: "I redesign our annual report every year and this is the first course that talked about margins as structure. My pages finally look like they were designed on purpose.",
-    },
-    {
-      name: "Jonah Ellis",
-      rating: 5,
-      date: "1 month ago",
-      body: "No fluff, no font-shopping. Mara treats type like architecture and it clicked in lesson two. Worth the whole catalog.",
-    },
-    {
-      name: "Claire Nguyen",
-      rating: 4,
-      date: "3 months ago",
-      body: "Dense in the best way. I watched the measure lesson twice. Would love a follow-up on multilingual setting.",
-    },
-  ],
-  "light-in-the-frame": [
-    {
-      name: "Diego Morales",
-      rating: 5,
-      date: "5 days ago",
-      body: "I sold a light kit after this. One window, three distances, and I finally understand falloff.",
-    },
-    {
-      name: "Hannah Cho",
-      rating: 4,
-      date: "1 month ago",
-      body: "Practical and calm. The shadow lesson changed how I expose interviews.",
-    },
-  ],
-  "interface-rhythm": [
-    {
-      name: "Sam Okonkwo",
-      rating: 5,
-      date: "2 months ago",
-      body: "Threw out half our type ramp the same afternoon. The product immediately felt designed.",
-    },
-    {
-      name: "Lina Berg",
-      rating: 5,
-      date: "3 weeks ago",
-      body: "The pause lesson should be required for anyone who ships motion.",
-    },
-  ],
-  "the-written-line": [
-    {
-      name: "Mark Ivers",
-      rating: 5,
-      date: "6 days ago",
-      body: "I cut the first paragraph of every draft now. Helen is ruthless and I needed that.",
-    },
-  ],
-  "color-after-dark": [
-    {
-      name: "Asha Patel",
-      rating: 4,
-      date: "2 months ago",
-      body: "Finally a color course that does not hand you 40 swatches. Three notes. Done.",
-    },
-  ],
-  "building-with-intent": [
-    {
-      name: "Chris Lang",
+      name: "Amira Haddad",
       rating: 5,
       date: "1 week ago",
-      body: "The seam-naming lecture saved us a rewrite. I made the whole team watch it.",
+      body: "I finally understand why every office asks for the codice fiscale. Chiara talks like a person, not a circular.",
     },
     {
-      name: "Maya Feldman",
-      rating: 5,
-      date: "1 month ago",
-      body: "Opinionated in a useful way. The boring path is now a phrase we use in standup.",
-    },
-  ],
-  "still-life-studio": [
-    {
-      name: "Owen Blake",
+      name: "Ion Popescu",
       rating: 5,
       date: "3 weeks ago",
-      body: "I shoot ceramics. This is the first course that talked about height as respect. Gorgeous and useful.",
+      body: "The letter lesson saved me a Saturday at the CAF. I could see it was only an avviso, not a fine.",
     },
   ],
-  "the-cut": [
+  "dichiarazione-dei-redditi": [
     {
-      name: "Rita Solano",
+      name: "Maria Santos",
       rating: 5,
-      date: "4 days ago",
-      body: "The ethical cut lesson should be taught in every film school. Nina does not waste a second.",
+      date: "5 days ago",
+      body: "I used the 730 instead of paying a commercialista. The calendar lesson is the one I replayed.",
     },
     {
-      name: "Ben Park",
+      name: "Kwame Mensah",
+      rating: 4,
+      date: "1 month ago",
+      body: "Clear on receipts. I had been keeping supermarket tickets for nothing.",
+    },
+  ],
+  "come-funziona-il-caf": [
+    {
+      name: "Olena Kovalenko",
       rating: 5,
-      date: "2 months ago",
-      body: "I stopped temping music first. My scenes got better immediately.",
+      date: "2 weeks ago",
+      body: "Went in with the folder he described. Ten minutes. Last year I was sent home twice.",
+    },
+  ],
+  "patronato-diritti-e-pratiche": [
+    {
+      name: "Hassan Benali",
+      rating: 5,
+      date: "4 days ago",
+      body: "Started NASpI the week I finished the job. I did not know the desk was free.",
+    },
+  ],
+  "patente-b-quiz": [
+    {
+      name: "Yusuf Demir",
+      rating: 5,
+      date: "2 days ago",
+      body: "Passed with two errors. The signs lesson is exactly the exam, not the pretty booklet.",
+    },
+    {
+      name: "Sara Bianchi",
+      rating: 5,
+      date: "3 weeks ago",
+      body: "I had failed once. The 20-error rule explanation changed how I practised.",
+    },
+  ],
+  "italiano-a1": [
+    {
+      name: "Fatou Diallo",
+      rating: 5,
+      date: "1 week ago",
+      body: "I said ‘può ripetere’ at the anagrafe and the woman smiled and slowed down. That was the whole course for me.",
+    },
+  ],
+  "italiano-a2": [
+    {
+      name: "Andrei Ionescu",
+      rating: 5,
+      date: "2 weeks ago",
+      body: "The letter from the comune is no longer a brick. I found the date they wanted.",
+    },
+  ],
+  "spoken-italian": [
+    {
+      name: "Mei Chen",
+      rating: 4,
+      date: "6 days ago",
+      body: "Fast and useful. The phone lesson is the one I still practise in the kitchen.",
+    },
+  ],
+  "sportello-immigrazione": [
+    {
+      name: "Diego Alvarez",
+      rating: 5,
+      date: "1 week ago",
+      body: "I almost paid a man in the parking lot. This course named the scam before I did it.",
+    },
+    {
+      name: "Nadia Farouk",
+      rating: 5,
+      date: "1 month ago",
+      body: "Renewed with the ricevuta in my pocket. Giulia is the sportello I wish existed in my city.",
+    },
+  ],
+  "italian-business-system": [
+    {
+      name: "Lorenzo Vitale",
+      rating: 5,
+      date: "3 weeks ago",
+      body: "Opened forfettario without buying four apps. The first invoice went through SDI.",
     },
   ],
 };
@@ -265,12 +298,13 @@ export function getReviews(slug: string): Review[] {
 }
 
 export function formatPrice(value: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("it-IT", {
     style: "currency",
-    currency: "USD",
+    currency: "EUR",
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
 export function formatCount(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat("it-IT").format(value);
 }

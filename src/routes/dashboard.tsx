@@ -16,7 +16,7 @@ import { formatMinutes } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
-  head: () => ({ meta: [{ title: "Dashboard — Skillpath" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — National Education Center" }] }),
 });
 
 function DashboardPage() {

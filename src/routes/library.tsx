@@ -20,7 +20,7 @@ export const Route = createFileRoute("/library")({
   },
   component: LibraryPage,
   head: () => ({
-    meta: [{ title: "My learning — Skillpath" }],
+    meta: [{ title: "My learning — National Education Center" }],
   }),
 });
 

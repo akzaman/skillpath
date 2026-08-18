@@ -23,7 +23,7 @@ import { useProfile } from "@/lib/use-profile";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminPage,
-  head: () => ({ meta: [{ title: "Admin — Skillpath" }] }),
+  head: () => ({ meta: [{ title: "Admin — National Education Center" }] }),
 });
 
 function AdminPage() {

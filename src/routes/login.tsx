@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { BrandMark } from "@/components/brand-mark";
 import { AuthForm } from "@/components/auth-form";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { next?: string } => ({
@@ -7,7 +9,7 @@ export const Route = createFileRoute("/login")({
   }),
   component: LoginPage,
   head: () => ({
-    meta: [{ title: "Log in to Skillpath" }],
+    meta: [{ title: `Log in — ${APP_NAME}` }],
   }),
 });
 
@@ -17,14 +19,7 @@ function LoginPage() {
     <main className="min-h-dvh bg-bg">
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2 text-fg">
-            <span className="grid size-7 place-items-center rounded-sm bg-primary">
-              <svg viewBox="0 0 12 12" className="size-3.5 fill-primary-fg" aria-hidden="true">
-                <path d="M3 1.6v8.8L11 6z" />
-              </svg>
-            </span>
-            <span className="text-lg font-bold tracking-tight">Skillpath</span>
-          </Link>
+          <BrandMark />
         </div>
       </header>
       <section className="mx-auto flex w-full max-w-md flex-col px-4 py-14">

@@ -14,7 +14,7 @@ import { formatMinutes } from "@/lib/utils";
 
 export const Route = createFileRoute("/progress")({
   component: ProgressPage,
-  head: () => ({ meta: [{ title: "Progress — Skillpath" }] }),
+  head: () => ({ meta: [{ title: "Progress — National Education Center" }] }),
 });
 
 function ProgressPage() {

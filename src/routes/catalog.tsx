@@ -20,7 +20,7 @@ export const Route = createFileRoute("/catalog")({
   loader: () => listPublishedCourses(),
   component: CatalogPage,
   head: () => ({
-    meta: [{ title: "Courses — Skillpath" }],
+    meta: [{ title: "Courses — National Education Center" }],
   }),
 });
 
