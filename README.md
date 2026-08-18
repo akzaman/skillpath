@@ -2,6 +2,8 @@
 
 Video course marketplace — students learn, teachers publish, admins run the school.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/akzaman/skillpath&project-name=skillpath&repository-name=skillpath&env=BETTER_AUTH_SECRET,BETTER_AUTH_URL,VITE_AUTH_ENABLED&envDescription=Auth%20settings.%20Add%20Neon%20from%20Storage%20for%20DATABASE_URL.)
+
 ## Stack
 
 - TanStack Start + React 19
@@ -17,15 +19,23 @@ Video course marketplace — students learn, teachers publish, admins run the sc
 | Teacher | Create courses and lectures in the studio |
 | Admin | Users, roles, catalog |
 
-## Deploy
+## Deploy on Vercel
 
-1. Push this repo to GitHub
-2. Import the repo in Vercel
-3. Add the **Neon** integration so `DATABASE_URL` is set
-4. Set `BETTER_AUTH_SECRET` (random 32+ chars) and `BETTER_AUTH_URL` to the live site
-5. Redeploy — `npm run build` applies `migrations/` to Neon
+The GitHub repo is ready. Open this link while logged into Vercel:
 
-Local preview without Neon uses an in-memory database.
+**https://vercel.com/new/clone?repository-url=https://github.com/akzaman/skillpath**
+
+1. Import **akzaman/skillpath**
+2. Storage → Connect Store → **Neon** (sets `DATABASE_URL`)
+3. Environment variables:
+
+| Name | Value |
+| --- | --- |
+| `BETTER_AUTH_SECRET` | any long random string |
+| `BETTER_AUTH_URL` | the `*.vercel.app` URL Vercel shows |
+| `VITE_AUTH_ENABLED` | `true` |
+
+4. Deploy — `npm run build` applies `migrations/` to Neon
 
 ## Scripts
 
