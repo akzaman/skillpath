@@ -1,5 +1,7 @@
 /** Client-side image compression and video upload helpers. */
 
+import { createLectureUpload } from "@/lib/storage";
+
 export const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
 
 export async function compressImageFile(file: File): Promise<string> {
@@ -20,6 +22,25 @@ export async function compressImageFile(file: File): Promise<string> {
     return canvas.toDataURL("image/jpeg", 0.65);
   }
   return dataUrl;
+}
+
+export async function uploadVideoToBucket(file: File): Promise<string> {
+  const signed = await createLectureUpload({
+    data: {
+      filename: file.name,
+      contentType: file.type || "video/mp4",
+      size: file.size,
+    },
+  });
+  const put = await fetch(signed.uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": file.type || "video/mp4" },
+  });
+  if (!put.ok) {
+    throw new Error("Cloud storage rejected the upload. Check the bucket CORS rules.");
+  }
+  return signed.publicUrl;
 }
 
 export async function uploadVideoFile(file: File, bearerToken?: string | null): Promise<string> {
