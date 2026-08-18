@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { expiryFromDays, isAccessActive, daysLeft } from "@/lib/access";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { getCourse } from "@/data/catalog";
+import { loadAllCourses } from "@/lib/catalog-service";
 
 async function courseExists(slug: string): Promise<boolean> {
   if (getCourse(slug)) return true;
@@ -29,6 +31,9 @@ export type LibraryItem = {
   lastLessonSlug: string | null;
   lastPosition: number;
   bookmarked: boolean;
+  expiresAt: string | null;
+  accessActive: boolean;
+  daysRemaining: number | null;
 };
 
 const courseSlugSchema = z.object({ courseSlug: z.string().min(1) });
@@ -42,13 +47,23 @@ export const enrollInCourse = createServerFn({ method: "POST" })
   .validator((input: unknown) => courseSlugSchema.parse(input))
   .handler(async ({ context, data }) => {
     if (!(await courseExists(data.courseSlug))) throw new Error("Course not found");
+    const courses = await loadAllCourses();
+    const course = courses.find((item) => item.slug === data.courseSlug);
+    const days = course?.accessDays ?? 0;
+    const expires = expiryFromDays(days);
     const sql = await getSql();
     await sql`
-      insert into enrollments (user_id, course_slug)
-      values (${context.userId}, ${data.courseSlug})
-      on conflict (user_id, course_slug) do nothing
+      insert into enrollments (user_id, course_slug, access_days, expires_at, source)
+      values (
+        ${context.userId}, ${data.courseSlug}, ${days || null},
+        ${expires ? expires.toISOString() : null}, 'self'
+      )
+      on conflict (user_id, course_slug) do update set
+        access_days = excluded.access_days,
+        expires_at = excluded.expires_at,
+        enrolled_at = now()
     `;
-    return { ok: true as const };
+    return { ok: true as const, expiresAt: expires?.toISOString() ?? null };
   });
 
 export const toggleBookmark = createServerFn({ method: "POST" })
@@ -90,11 +105,14 @@ export const saveProgress = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const sql = await getSql();
-    await sql`
-      insert into enrollments (user_id, course_slug)
-      values (${context.userId}, ${data.courseSlug})
-      on conflict (user_id, course_slug) do nothing
+    const access = await sql<{ expires_at: string | null }>`
+      select expires_at::text from enrollments
+      where user_id = ${context.userId} and course_slug = ${data.courseSlug}
     `;
+    if (!access[0]) throw new Error("Enroll in this course first");
+    if (!isAccessActive(access[0].expires_at)) {
+      throw new Error("Your access to this course has ended");
+    }
     await sql`
       insert into lesson_progress (
         user_id, course_slug, lesson_slug,
@@ -141,8 +159,13 @@ export const getCourseLearning = createServerFn({ method: "GET" })
   .validator((input: unknown) => courseSlugSchema.parse(input))
   .handler(async ({ context, data }) => {
     const sql = await getSql();
-    const enrolled = await sql<{ enrolled_at: string }>`
-      select enrolled_at::text from enrollments
+    const enrolled = await sql<{
+      enrolled_at: string;
+      expires_at: string | null;
+      access_days: number | null;
+    }>`
+      select enrolled_at::text, expires_at::text, access_days
+      from enrollments
       where user_id = ${context.userId} and course_slug = ${data.courseSlug}
     `;
     const bookmarked = await sql<{ course_slug: string }>`
@@ -164,8 +187,13 @@ export const getCourseLearning = createServerFn({ method: "GET" })
       select lesson_slug, body from lesson_notes
       where user_id = ${context.userId} and course_slug = ${data.courseSlug}
     `;
+    const row = enrolled[0];
     return {
-      enrolled: enrolled.length > 0,
+      enrolled: Boolean(row),
+      expiresAt: row?.expires_at ?? null,
+      accessDays: row?.access_days ?? null,
+      accessActive: Boolean(row) && isAccessActive(row?.expires_at ?? null),
+      daysRemaining: row ? daysLeft(row.expires_at) : null,
       bookmarked: bookmarked.length > 0,
       progress: progress.map((row) => ({
         courseSlug: data.courseSlug,
@@ -186,8 +214,12 @@ export const getLibrary = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
     const sql = await getSql();
-    const enrolled = await sql<{ course_slug: string; enrolled_at: string }>`
-      select course_slug, enrolled_at::text
+    const enrolled = await sql<{
+      course_slug: string;
+      enrolled_at: string;
+      expires_at: string | null;
+    }>`
+      select course_slug, enrolled_at::text, expires_at::text
       from enrollments
       where user_id = ${context.userId}
       order by enrolled_at desc
@@ -229,6 +261,9 @@ export const getLibrary = createServerFn({ method: "GET" })
         lastLessonSlug: latest?.lesson_slug ?? null,
         lastPosition: latest?.position_seconds ?? 0,
         bookmarked: bookmarkedSet.has(row.course_slug),
+        expiresAt: row.expires_at,
+        accessActive: isAccessActive(row.expires_at),
+        daysRemaining: daysLeft(row.expires_at),
       });
     }
 
@@ -243,6 +278,9 @@ export const getLibrary = createServerFn({ method: "GET" })
         lastLessonSlug: latest?.lesson_slug ?? null,
         lastPosition: latest?.position_seconds ?? 0,
         bookmarked: true,
+        expiresAt: null,
+        accessActive: false,
+        daysRemaining: null,
       });
     }
 
@@ -338,11 +376,14 @@ export const markLessonComplete = createServerFn({ method: "POST" })
   .validator((input: unknown) => lessonKeySchema.parse(input))
   .handler(async ({ context, data }) => {
     const sql = await getSql();
-    await sql`
-      insert into enrollments (user_id, course_slug)
-      values (${context.userId}, ${data.courseSlug})
-      on conflict (user_id, course_slug) do nothing
+    const access = await sql<{ expires_at: string | null }>`
+      select expires_at::text from enrollments
+      where user_id = ${context.userId} and course_slug = ${data.courseSlug}
     `;
+    if (!access[0]) throw new Error("Enroll in this course first");
+    if (!isAccessActive(access[0].expires_at)) {
+      throw new Error("Your access to this course has ended");
+    }
     await sql`
       insert into lesson_progress (
         user_id, course_slug, lesson_slug,

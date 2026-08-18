@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { expiryFromDays, isAccessActive, daysLeft } from "@/lib/access";
 import { resolveVideoSources } from "@/data/media";
 import { getCourse as getSeedCourse } from "@/data/catalog";
 import { authMiddleware } from "@/lib/auth/middleware";
@@ -26,6 +27,7 @@ const courseInput = z.object({
   instructorTitle: z.string().max(80),
   instructorBio: z.string().max(600),
   published: z.boolean(),
+  accessDays: z.number().int().min(0).max(3650).optional().default(0),
 });
 
 const lessonInput = z.object({
@@ -89,12 +91,12 @@ export const createStudioCourse = createServerFn({ method: "POST" })
     await sql`
       insert into studio_courses (
         slug, owner_id, title, subtitle, description, category, level, poster,
-        instructor_name, instructor_title, instructor_bio, published, featured
+        instructor_name, instructor_title, instructor_bio, published, featured, access_days
       ) values (
         ${slug}, ${context.userId}, ${data.title.trim()}, ${data.subtitle.trim()},
         ${data.description.trim()}, ${data.category}, ${data.level}, ${data.poster},
         ${data.instructorName.trim()}, ${data.instructorTitle.trim()}, ${data.instructorBio.trim()},
-        ${data.published}, false
+        ${data.published}, false, ${data.accessDays ?? 0}
       )
     `;
     return { slug };
@@ -118,6 +120,7 @@ export const updateStudioCourse = createServerFn({ method: "POST" })
         instructor_title = ${data.instructorTitle.trim()},
         instructor_bio = ${data.instructorBio.trim()},
         published = ${data.published},
+        access_days = ${data.accessDays ?? 0},
         updated_at = now()
       where slug = ${data.slug}
       returning slug
@@ -142,12 +145,12 @@ export const adoptPlatformCourse = createServerFn({ method: "POST" })
     await sql`
       insert into studio_courses (
         slug, owner_id, title, subtitle, description, category, level, poster,
-        instructor_name, instructor_title, instructor_bio, published, featured
+        instructor_name, instructor_title, instructor_bio, published, featured, access_days
       ) values (
         ${seed.slug}, ${context.userId}, ${seed.title}, ${seed.subtitle},
         ${seed.description}, ${seed.category}, ${seed.level}, ${seed.poster},
         ${seed.instructor.name}, ${seed.instructor.title}, ${seed.instructor.bio},
-        true, ${Boolean(seed.featured)}
+        true, ${Boolean(seed.featured)}, 0
       )
     `;
     for (const [index, lesson] of seed.lessons.entries()) {
@@ -252,6 +255,7 @@ export const setCourseFlags = createServerFn({ method: "POST" })
         slug: z.string().min(1),
         published: z.boolean(),
         featured: z.boolean(),
+        accessDays: z.number().int().min(0).max(3650).optional(),
       })
       .parse(input),
   )
@@ -261,18 +265,28 @@ export const setCourseFlags = createServerFn({ method: "POST" })
     const sql = await getSql();
     const studio = await sql<{ slug: string }>`select slug from studio_courses where slug = ${data.slug}`;
     if (studio[0]) {
-      await sql`
-        update studio_courses
-        set published = ${data.published}, featured = ${data.featured}, updated_at = now()
-        where slug = ${data.slug}
-      `;
+      if (data.accessDays === undefined) {
+        await sql`
+          update studio_courses
+          set published = ${data.published}, featured = ${data.featured}, updated_at = now()
+          where slug = ${data.slug}
+        `;
+      } else {
+        await sql`
+          update studio_courses
+          set published = ${data.published}, featured = ${data.featured},
+              access_days = ${data.accessDays}, updated_at = now()
+          where slug = ${data.slug}
+        `;
+      }
     } else {
       await sql`
-        insert into course_overrides (course_slug, published, featured)
-        values (${data.slug}, ${data.published}, ${data.featured})
+        insert into course_overrides (course_slug, published, featured, access_days)
+        values (${data.slug}, ${data.published}, ${data.featured}, ${data.accessDays ?? 0})
         on conflict (course_slug) do update set
           published = excluded.published,
-          featured = excluded.featured
+          featured = excluded.featured,
+          access_days = coalesce(excluded.access_days, course_overrides.access_days)
       `;
     }
     return { ok: true as const };
@@ -407,6 +421,10 @@ export type CourseStudent = {
   totalLessons: number;
   lastLessonSlug: string | null;
   lastActive: string | null;
+  expiresAt: string | null;
+  accessActive: boolean;
+  daysRemaining: number | null;
+  source: string;
 };
 
 export const listCourseStudents = createServerFn({ method: "GET" })
@@ -419,8 +437,13 @@ export const listCourseStudents = createServerFn({ method: "GET" })
       select count(*)::int as n from studio_lessons where course_slug = ${data.slug}
     `;
     const totalLessons = Number(totalRow[0]?.n ?? 0);
-    const enrolled = await sql<{ user_id: string; enrolled_at: string }>`
-      select user_id, enrolled_at::text as enrolled_at
+    const enrolled = await sql<{
+      user_id: string;
+      enrolled_at: string;
+      expires_at: string | null;
+      source: string;
+    }>`
+      select user_id, enrolled_at::text as enrolled_at, expires_at::text, coalesce(source, 'self') as source
       from enrollments
       where course_slug = ${data.slug}
       order by enrolled_at desc
@@ -466,7 +489,92 @@ export const listCourseStudents = createServerFn({ method: "GET" })
         totalLessons,
         lastLessonSlug: stats?.last_lesson ?? null,
         lastActive: stats?.last_active ?? null,
+        expiresAt: row.expires_at,
+        accessActive: isAccessActive(row.expires_at),
+        daysRemaining: daysLeft(row.expires_at),
+        source: row.source,
       };
     });
+  });
+
+export const enrollStudentByEmail = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: unknown) =>
+    z
+      .object({
+        slug: z.string().min(1),
+        email: z.string().email(),
+        accessDays: z.number().int().min(0).max(3650),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    await assertCanEdit(context.userId, data.slug);
+    const sql = await getSql();
+    const people = await sql<{ id: string; email: string }>`
+      select "id" as id, "email" as email from "user"
+      where lower("email") = ${data.email.trim().toLowerCase()}
+    `;
+    const student = people[0];
+    if (!student) {
+      throw new Error("No account with that email. Create the student first, then enroll them.");
+    }
+    const expires = expiryFromDays(data.accessDays);
+    await sql`
+      insert into enrollments (user_id, course_slug, access_days, expires_at, source, enrolled_by)
+      values (
+        ${student.id}, ${data.slug}, ${data.accessDays || null},
+        ${expires ? expires.toISOString() : null}, 'manual', ${context.userId}
+      )
+      on conflict (user_id, course_slug) do update set
+        access_days = excluded.access_days,
+        expires_at = excluded.expires_at,
+        source = 'manual',
+        enrolled_by = excluded.enrolled_by,
+        enrolled_at = now()
+    `;
+    return { ok: true as const, userId: student.id };
+  });
+
+export const setEnrollmentAccess = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: unknown) =>
+    z
+      .object({
+        slug: z.string().min(1),
+        userId: z.string().min(1),
+        accessDays: z.number().int().min(0).max(3650),
+      })
+      .parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    await assertCanEdit(context.userId, data.slug);
+    const sql = await getSql();
+    const expires = expiryFromDays(data.accessDays);
+    const updated = await sql<{ user_id: string }>`
+      update enrollments
+      set access_days = ${data.accessDays || null},
+          expires_at = ${expires ? expires.toISOString() : null},
+          enrolled_at = now()
+      where course_slug = ${data.slug} and user_id = ${data.userId}
+      returning user_id
+    `;
+    if (!updated[0]) throw new Error("Enrollment not found");
+    return { ok: true as const };
+  });
+
+export const removeEnrollment = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: unknown) =>
+    z.object({ slug: z.string().min(1), userId: z.string().min(1) }).parse(input),
+  )
+  .handler(async ({ context, data }) => {
+    await assertCanEdit(context.userId, data.slug);
+    const sql = await getSql();
+    await sql`
+      delete from enrollments
+      where course_slug = ${data.slug} and user_id = ${data.userId}
+    `;
+    return { ok: true as const };
   });
 

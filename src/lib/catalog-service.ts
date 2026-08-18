@@ -14,6 +14,7 @@ export type CourseRecord = Course & {
   source: "platform" | "studio";
   ownerId: string | null;
   published: boolean;
+  accessDays: number;
 };
 
 type StudioCourseRow = {
@@ -30,6 +31,7 @@ type StudioCourseRow = {
   instructor_bio: string;
   published: boolean;
   featured: boolean;
+  access_days: number | null;
 };
 
 type StudioLessonRow = {
@@ -93,6 +95,7 @@ function studioToCourse(row: StudioCourseRow, lessons: Lesson[]): CourseRecord {
     source: "studio",
     ownerId: row.owner_id,
     published: row.published,
+    accessDays: Number(row.access_days ?? 0) || 0,
   };
 }
 
@@ -100,7 +103,7 @@ async function loadStudio(): Promise<CourseRecord[]> {
   const sql = await getSql();
   const courseRows = await sql<StudioCourseRow>`
     select slug, owner_id, title, subtitle, description, category, level, poster,
-           instructor_name, instructor_title, instructor_bio, published, featured
+           instructor_name, instructor_title, instructor_bio, published, featured, access_days
     from studio_courses
   `;
   if (!courseRows.length) return [];
@@ -119,12 +122,28 @@ async function loadStudio(): Promise<CourseRecord[]> {
   return courseRows.map((row) => studioToCourse(row, parseLessons(byCourse.get(row.slug) ?? [])));
 }
 
-async function loadOverrides(): Promise<Map<string, { published: boolean; featured: boolean }>> {
+async function loadOverrides(): Promise<
+  Map<string, { published: boolean; featured: boolean; accessDays: number }>
+> {
   const sql = await getSql();
-  const rows = await sql<{ course_slug: string; published: boolean; featured: boolean }>`
-    select course_slug, published, featured from course_overrides
+  const rows = await sql<{
+    course_slug: string;
+    published: boolean;
+    featured: boolean;
+    access_days: number | null;
+  }>`
+    select course_slug, published, featured, access_days from course_overrides
   `;
-  return new Map(rows.map((row) => [row.course_slug, { published: row.published, featured: row.featured }]));
+  return new Map(
+    rows.map((row) => [
+      row.course_slug,
+      {
+        published: row.published,
+        featured: row.featured,
+        accessDays: Number(row.access_days ?? 0) || 0,
+      },
+    ]),
+  );
 }
 
 export async function loadAllCourses(): Promise<CourseRecord[]> {
@@ -137,6 +156,7 @@ export async function loadAllCourses(): Promise<CourseRecord[]> {
       ownerId: null,
       published: flag?.published ?? true,
       featured: flag?.featured ?? Boolean(course.featured),
+      accessDays: flag?.accessDays ?? 0,
     };
   });
   const studio = await loadStudio();

@@ -20,6 +20,7 @@ import { getCourseRecord } from "@/lib/catalog-service";
 import { formatPrice, getMarket, getReviews } from "@/data/market";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { enrollInCourse, getCourseLearning, toggleBookmark } from "@/lib/learning";
+import { accessLabel } from "@/lib/access";
 import { cn, formatMinutes } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
@@ -298,23 +299,39 @@ function CoursePage() {
                 {Math.round((1 - market.price / market.listPrice) * 100)}% off · demo enrollment is
                 free
               </p>
+              <p className="mt-2 text-sm text-muted">
+                {learning?.enrolled
+                  ? accessLabel(learning.expiresAt)
+                  : course.accessDays > 0
+                    ? `Access for ${course.accessDays} days after enrollment`
+                    : "Unlimited access after enrollment"}
+              </p>
               <div className="mt-4 flex flex-col gap-2">
-                <Button asChild size="lg" className="w-full">
-                  <Link {...watchTo}>
-                    {completedCount > 0 ? t("course.continue") : t("course.enroll")}
-                  </Link>
-                </Button>
-                {!isPending && user && !learning?.enrolled ? (
+                {user && !learning?.enrolled ? (
                   <Button
-                    variant="outline"
                     size="lg"
                     className="w-full"
-                    onClick={() => enroll.mutate()}
                     disabled={enroll.isPending}
+                    onClick={() => enroll.mutate()}
                   >
-                    Add to My learning
+                    {t("course.enroll")}
                   </Button>
-                ) : null}
+                ) : user && learning?.enrolled && !learning.accessActive ? (
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    disabled={enroll.isPending}
+                    onClick={() => enroll.mutate()}
+                  >
+                    Renew access
+                  </Button>
+                ) : (
+                  <Button asChild size="lg" className="w-full">
+                    <Link {...watchTo}>
+                      {completedCount > 0 ? t("course.continue") : t("course.enroll")}
+                    </Link>
+                  </Button>
+                )}
                 {!isPending && !user ? (
                   <Button asChild variant="outline" size="lg" className="w-full">
                     <Link to="/login" search={{ next: `/course/${course.slug}` }}>

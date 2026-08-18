@@ -25,9 +25,12 @@ import {
   addStudioLesson,
   deleteStudioCourse,
   deleteStudioLesson,
+  enrollStudentByEmail,
   getStudioCourse,
   listCourseStudents,
+  removeEnrollment,
   reorderStudioLessons,
+  setEnrollmentAccess,
   setStudioPublished,
   updateStudioCourse,
   updateStudioLesson,
@@ -66,6 +69,7 @@ function EditCoursePage() {
   const [instructorName, setInstructorName] = useState("");
   const [instructorTitle, setInstructorTitle] = useState("");
   const [instructorBio, setInstructorBio] = useState("");
+  const [accessDays, setAccessDays] = useState(0);
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonSummary, setLessonSummary] = useState("");
   const [lessonTranscript, setLessonTranscript] = useState("");
@@ -73,6 +77,8 @@ function EditCoursePage() {
   const [lessonCustomUrl, setLessonCustomUrl] = useState("");
   const [lessonPreview, setLessonPreview] = useState(true);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [enrollEmail, setEnrollEmail] = useState("");
+  const [enrollDays, setEnrollDays] = useState(30);
 
   useEffect(() => {
     if (!course) return;
@@ -85,6 +91,7 @@ function EditCoursePage() {
     setInstructorName(course.instructor.name);
     setInstructorTitle(course.instructor.title);
     setInstructorBio(course.instructor.bio);
+    setAccessDays(course.accessDays ?? 0);
   }, [course]);
 
   async function refresh() {
@@ -109,6 +116,7 @@ function EditCoursePage() {
           instructorTitle,
           instructorBio,
           published: Boolean(course?.published),
+          accessDays,
         },
       }),
     onSuccess: async () => {
@@ -432,6 +440,15 @@ function EditCoursePage() {
               <Field label="Poster">
                 <PosterPicker value={poster} onChange={setPoster} />
               </Field>
+              <Field label="Access days (0 = unlimited)">
+                <Input
+                  type="number"
+                  min={0}
+                  max={3650}
+                  value={accessDays}
+                  onChange={(event) => setAccessDays(Number(event.target.value) || 0)}
+                />
+              </Field>
               <Field label="Instructor name">
                 <Input
                   value={instructorName}
@@ -469,26 +486,71 @@ function EditCoursePage() {
           </TabsContent>
 
           <TabsContent value="students">
+            <form
+              className="mb-4 grid gap-3 rounded-md border border-line bg-surface p-4 sm:grid-cols-[1fr_8rem_auto]"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void enrollStudentByEmail({
+                  data: {
+                    slug,
+                    email: enrollEmail.trim(),
+                    accessDays: enrollDays,
+                  },
+                })
+                  .then(async () => {
+                    setEnrollEmail("");
+                    await queryClient.invalidateQueries({ queryKey: ["studio-students", slug] });
+                    toast("Student enrolled");
+                  })
+                  .catch((error) => toast(error instanceof Error ? error.message : "Could not enroll"));
+              }}
+            >
+              <Field label="Student email">
+                <Input
+                  type="email"
+                  required
+                  value={enrollEmail}
+                  onChange={(event) => setEnrollEmail(event.target.value)}
+                  placeholder="student@email.com"
+                />
+              </Field>
+              <Field label="Days">
+                <Input
+                  type="number"
+                  min={0}
+                  max={3650}
+                  value={enrollDays}
+                  onChange={(event) => setEnrollDays(Number(event.target.value) || 0)}
+                />
+              </Field>
+              <div className="flex items-end">
+                <Button type="submit">Enroll</Button>
+              </div>
+              <p className="sm:col-span-3 text-xs text-muted">
+                0 days means unlimited. The student must already have an account.
+              </p>
+            </form>
             <div className="overflow-x-auto rounded-md border border-line bg-surface">
-              <table className="w-full min-w-[560px] text-left text-sm">
+              <table className="w-full min-w-[720px] text-left text-sm">
                 <thead className="border-b border-line text-xs tracking-wide text-muted uppercase">
                   <tr>
                     <th className="px-4 py-3 font-medium">Student</th>
                     <th className="px-4 py-3 font-medium">Progress</th>
-                    <th className="px-4 py-3 font-medium">Last lecture</th>
+                    <th className="px-4 py-3 font-medium">Access</th>
+                    <th className="px-4 py-3 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {studentsQuery.isLoading ? (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-muted">
+                      <td colSpan={4} className="px-4 py-8 text-muted">
                         Loading students…
                       </td>
                     </tr>
                   ) : students.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-muted">
-                        No one has enrolled yet. Publish the course so students can join.
+                      <td colSpan={4} className="px-4 py-8 text-muted">
+                        No one is enrolled. Add a student by email, or they can enroll themselves.
                       </td>
                     </tr>
                   ) : (
@@ -503,7 +565,63 @@ function EditCoursePage() {
                           complete
                         </td>
                         <td className="px-4 py-3 text-muted">
-                          {student.lastLessonSlug ?? "Not started"}
+                          {student.accessActive
+                            ? student.daysRemaining === null
+                              ? "Unlimited"
+                              : `${student.daysRemaining} days left`
+                            : "Ended"}
+                          <span className="block text-xs">
+                            {student.source === "manual" ? "Manual" : "Self"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const days = Number(
+                                  window.prompt("Access days from today (0 = unlimited)", "30"),
+                                );
+                                if (!Number.isFinite(days) || days < 0) return;
+                                void setEnrollmentAccess({
+                                  data: { slug, userId: student.userId, accessDays: days },
+                                })
+                                  .then(async () => {
+                                    await queryClient.invalidateQueries({
+                                      queryKey: ["studio-students", slug],
+                                    });
+                                    toast("Access updated");
+                                  })
+                                  .catch((error) =>
+                                    toast(error instanceof Error ? error.message : "Could not update"),
+                                  );
+                              }}
+                            >
+                              Extend
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                if (!window.confirm("Remove this enrollment?")) return;
+                                void removeEnrollment({
+                                  data: { slug, userId: student.userId },
+                                })
+                                  .then(async () => {
+                                    await queryClient.invalidateQueries({
+                                      queryKey: ["studio-students", slug],
+                                    });
+                                    toast("Enrollment removed");
+                                  })
+                                  .catch((error) =>
+                                    toast(error instanceof Error ? error.message : "Could not remove"),
+                                  );
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))

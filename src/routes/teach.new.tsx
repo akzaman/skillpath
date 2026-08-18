@@ -31,6 +31,7 @@ function NewCoursePage() {
   const [instructorName, setInstructorName] = useState("");
   const [instructorTitle, setInstructorTitle] = useState("");
   const [instructorBio, setInstructorBio] = useState("");
+  const [accessDays, setAccessDays] = useState(0);
 
   useEffect(() => {
     if (user?.displayName && !instructorName) setInstructorName(user.displayName);
@@ -50,6 +51,7 @@ function NewCoursePage() {
           instructorTitle,
           instructorBio,
           published: false,
+          accessDays,
         },
       }),
     onSuccess: (result) => {
@@ -143,6 +145,15 @@ function NewCoursePage() {
           </div>
           <Field label="Poster">
             <PosterPicker value={poster} onChange={setPoster} />
+          </Field>
+          <Field label="Access days (0 = unlimited)">
+            <Input
+              type="number"
+              min={0}
+              max={3650}
+              value={accessDays}
+              onChange={(event) => setAccessDays(Number(event.target.value) || 0)}
+            />
           </Field>
           <Field label="Instructor name">
             <Input value={instructorName} onChange={(event) => setInstructorName(event.target.value)} required />

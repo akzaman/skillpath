@@ -10,6 +10,7 @@ import { listVisibleCourses } from "@/lib/catalog-service";
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { getLibrary } from "@/lib/learning";
+import { accessLabel } from "@/lib/access";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
@@ -104,14 +105,25 @@ function LibraryPage() {
               const course = catalogQuery.data?.find((row) => row.slug === item.courseSlug);
               if (!course) return null;
               return (
-                <CourseCard
-                  key={item.courseSlug}
-                  course={course}
-                  progress={{
-                    completed: item.completedLessons,
-                    total: course.lessons.length,
-                  }}
-                />
+                <div key={item.courseSlug}>
+                  <CourseCard
+                    course={course}
+                    progress={{
+                      completed: item.completedLessons,
+                      total: course.lessons.length,
+                    }}
+                  />
+                  {item.enrolledAt ? (
+                    <p
+                      className={cn(
+                        "mt-2 text-xs",
+                        item.accessActive ? "text-muted" : "font-medium text-danger",
+                      )}
+                    >
+                      {accessLabel(item.expiresAt)}
+                    </p>
+                  ) : null}
+                </div>
               );
             })}
           </div>

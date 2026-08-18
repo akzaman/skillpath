@@ -59,7 +59,6 @@ function WatchMissing() {
 function WatchPage() {
   const { course, lesson, index } = Route.useLoaderData();
   const { user, isPending } = useCurrentUserState();
-  const locked = !lesson.preview && !isPending && !user;
   const queryClient = useQueryClient();
   const [listOpen, setListOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -77,6 +76,11 @@ function WatchPage() {
   const lessonProgress = learningQuery.data?.progress.find(
     (row) => row.lessonSlug === lesson.slug,
   );
+  const accessActive = Boolean(learningQuery.data?.accessActive);
+  const locked =
+    !lesson.preview &&
+    !isPending &&
+    (!user || (Boolean(user) && !learningQuery.isPending && !accessActive));
   const completedSet = useMemo(() => {
     const set = new Set(
       learningQuery.data?.progress.filter((row) => row.completed).map((row) => row.lessonSlug) ??
@@ -211,17 +215,34 @@ function WatchPage() {
           <span className="grid size-12 place-items-center rounded-full bg-elevated">
             <Lock className="size-5 text-muted" />
           </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight">Log in to keep watching</h1>
+          <h1 className="mt-5 text-3xl font-bold tracking-tight">
+            {!user
+              ? "Log in to keep watching"
+              : learningQuery.data?.enrolled
+                ? "Access has ended"
+                : "Enroll to keep watching"}
+          </h1>
           <p className="mt-2 text-sm text-muted">
-            The first lecture of every course is free. Log in to continue{" "}
-            <span className="font-medium text-fg">{lesson.title}</span> and save your progress.
+            {!user
+              ? "The first lecture of every course is free. Log in to continue this lecture and save your progress."
+              : learningQuery.data?.enrolled
+                ? "Your access window for this course is over. Ask a teacher to extend it, or renew on the course page."
+                : "Enroll on the course page to watch the full lectures."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild>
-              <Link to="/login" search={{ next: nextPath }}>
-                Sign in to watch
-              </Link>
-            </Button>
+            {!user ? (
+              <Button asChild>
+                <Link to="/login" search={{ next: nextPath }}>
+                  Sign in to watch
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/course/$slug" params={{ slug: course.slug }}>
+                  {learningQuery.data?.enrolled ? "Renew access" : "Enroll"}
+                </Link>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <Link to="/course/$slug" params={{ slug: course.slug }}>
                 Back to course
@@ -270,7 +291,7 @@ function WatchPage() {
             </div>
           ) : null}
 
-          {lesson.preview || user ? (
+          {lesson.preview || accessActive ? (
             <VideoPlayer
               key={lesson.slug}
               sources={lesson.sources}
