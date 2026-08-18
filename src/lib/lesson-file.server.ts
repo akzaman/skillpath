@@ -72,6 +72,7 @@ async function fetchRemote(url: string): Promise<{ bytes: Uint8Array; mime: stri
 export async function loadProtectedLessonFile(input: {
   courseSlug: string;
   lessonSlug: string;
+  topicId?: string | null;
 }): Promise<{ bytes: Uint8Array; mime: string } | { error: string; status: number }> {
   const user = await getSessionUser();
   const courses = await loadAllCourses();
@@ -87,7 +88,17 @@ export async function loadProtectedLessonFile(input: {
   });
   if (!allowed) return { error: "Forbidden", status: 403 };
 
-  const raw = lesson.content?.fileUrl || lesson.sources[0]?.src || "";
+  const topics = lesson.topics ?? lesson.content?.topics ?? [];
+  const topic = input.topicId
+    ? topics.find((item) => item.id === input.topicId)
+    : undefined;
+  const raw =
+    topic?.content?.fileUrl ||
+    topic?.customUrl ||
+    topic?.sources?.[0]?.src ||
+    lesson.content?.fileUrl ||
+    lesson.sources[0]?.src ||
+    "";
   if (!raw) return { error: "No file", status: 404 };
 
   const mediaId = raw.match(/^\/api\/media\/([^/?#]+)/)?.[1];

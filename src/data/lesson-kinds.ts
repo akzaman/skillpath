@@ -28,6 +28,16 @@ export type LessonItem = {
   url: string;
 };
 
+export type LessonTopic = {
+  id: string;
+  title: string;
+  kind: LessonKind;
+  sources?: { src: string; type: string }[];
+  videoId?: string;
+  customUrl?: string;
+  content: LessonContent;
+};
+
 export type LessonContent = {
   body?: string;
   fileUrl?: string;
@@ -37,6 +47,7 @@ export type LessonContent = {
   assignmentPrompt?: string;
   questions?: QuizQuestion[];
   items?: LessonItem[];
+  topics?: LessonTopic[];
 };
 
 export const LESSON_KIND_META: Record<
@@ -55,9 +66,57 @@ export const LESSON_KIND_META: Record<
   live: { label: "Live", hint: "Zoom or Meet" },
   embedded: { label: "Embedded", hint: "Any iframe URL" },
   scorm: { label: "SCORM/HTML", hint: "Packaged module" },
-  multiple: { label: "Multiple", hint: "Several files" },
+  multiple: { label: "Multiple", hint: "Several topics in one lesson" },
 };
 
 export function isLessonKind(value: string): value is LessonKind {
   return (LESSON_KINDS as readonly string[]).includes(value);
+}
+
+export function newTopicId(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+export function emptyTopic(kind: LessonKind = "video", title = "Topic 1"): LessonTopic {
+  return {
+    id: newTopicId(),
+    title,
+    kind,
+    videoId: "custom",
+    customUrl: "",
+    content: {},
+  };
+}
+
+export function topicsFromLesson(input: {
+  title?: string;
+  kind?: LessonKind;
+  sources?: { src: string; type: string }[];
+  content?: LessonContent;
+}): LessonTopic[] {
+  const stored = input.content?.topics;
+  if (stored && stored.length > 0) {
+    return stored.map((topic, index) => ({
+      id: topic.id || newTopicId(),
+      title: topic.title || `Topic ${index + 1}`,
+      kind: isLessonKind(topic.kind) ? topic.kind : "video",
+      sources: topic.sources ?? [],
+      videoId: topic.videoId || "custom",
+      customUrl: topic.customUrl || "",
+      content: topic.content && typeof topic.content === "object" ? { ...topic.content, topics: undefined } : {},
+    }));
+  }
+  const leftover = { ...(input.content ?? {}) };
+  delete leftover.topics;
+  return [
+    {
+      id: "main",
+      title: input.title || "Topic 1",
+      kind: input.kind ?? "video",
+      sources: input.sources ?? [],
+      videoId: "custom",
+      customUrl: leftover.fileUrl || leftover.embedUrl || leftover.liveUrl || "",
+      content: leftover,
+    },
+  ];
 }

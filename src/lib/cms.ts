@@ -63,13 +63,70 @@ const lessonInput = z.object({
         .array(z.object({ label: z.string().max(80), url: z.string().max(2000) }))
         .max(20)
         .optional(),
+      topics: z
+        .array(
+          z.object({
+            id: z.string().max(40),
+            title: z.string().min(1).max(80),
+            kind: z.enum(LESSON_KINDS),
+            videoId: z.string().max(80).optional(),
+            customUrl: z.string().max(2000).optional(),
+            content: z
+              .object({
+                body: z.string().max(20000).optional(),
+                fileUrl: z.string().max(2000).optional(),
+                embedUrl: z.string().max(2000).optional(),
+                liveUrl: z.string().max(2000).optional(),
+                liveAt: z.string().max(80).optional(),
+                assignmentPrompt: z.string().max(4000).optional(),
+                questions: z
+                  .array(
+                    z.object({
+                      id: z.string().max(40),
+                      prompt: z.string().max(500),
+                      choices: z.array(z.string().max(240)).max(8),
+                      answer: z.number().int().min(-1).max(7),
+                    }),
+                  )
+                  .max(40)
+                  .optional(),
+              })
+              .optional()
+              .default({}),
+          }),
+        )
+        .max(30)
+        .optional(),
     })
     .optional()
     .default({}),
 });
 
 function encodeLessonJson(kind: LessonKind, sources: unknown, content: LessonContent): string {
-  return JSON.stringify({ kind, sources, content });
+  const topics = (content.topics ?? []).map((topic) => {
+    const custom = topic.customUrl || topic.content?.fileUrl || topic.content?.embedUrl || "";
+    const topicSources =
+      topic.kind === "video" || topic.kind === "audio"
+        ? resolveVideoSources(topic.videoId || "custom", custom)
+        : custom
+          ? [{ src: custom, type: "application/octet-stream" }]
+          : [];
+    return {
+      id: topic.id,
+      title: topic.title,
+      kind: topic.kind,
+      sources: topicSources,
+      videoId: topic.videoId,
+      customUrl: custom,
+      content: { ...topic.content, topics: undefined },
+    };
+  });
+  const first = topics[0];
+  return JSON.stringify({
+    kind: topics.length > 1 ? "multiple" : kind,
+    sources: first?.sources ?? sources,
+    content: { ...content, topics },
+  });
 }
 
 async function assertCanEdit(userId: string, slug: string) {

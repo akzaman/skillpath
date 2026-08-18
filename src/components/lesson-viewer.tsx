@@ -3,9 +3,12 @@ import { Download, ExternalLink, Radio } from "lucide-react";
 import type { Lesson } from "@/data/catalog";
 import { Button } from "@/components/ui/button";
 import { TextArea } from "@/components/field";
+import { LessonKindIcon } from "@/components/lesson-type-picker";
 import { PdfViewer } from "@/components/pdf-viewer";
 import { VideoPlayer } from "@/components/video-player";
+import { topicsFromLesson, type LessonTopic } from "@/data/lesson-kinds";
 import { embedSrc, parseVideoUrl } from "@/lib/video-url";
+import { cn } from "@/lib/utils";
 
 export function LessonViewer({
   lesson,
@@ -24,15 +27,100 @@ export function LessonViewer({
   onEnded?: () => void;
   onComplete?: () => void;
 }) {
+  const topics =
+    lesson.topics && lesson.topics.length > 0
+      ? lesson.topics
+      : topicsFromLesson({
+          title: lesson.title,
+          kind: lesson.kind,
+          sources: lesson.sources,
+          content: lesson.content,
+        });
+  const [activeId, setActiveId] = useState(topics[0]?.id ?? "main");
+  const topic = topics.find((item) => item.id === activeId) ?? topics[0];
+  const item = topicToLesson(lesson, topic);
+
+  const body = (
+    <LessonItem
+      lesson={item}
+      courseSlug={courseSlug}
+      topicId={topics.length > 1 ? topic?.id : undefined}
+      poster={poster}
+      initialTime={initialTime}
+      onProgress={onProgress}
+      onEnded={onEnded}
+      onComplete={onComplete}
+    />
+  );
+
+  if (topics.length <= 1) return body;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {topics.map((entry, index) => (
+          <button
+            key={entry.id}
+            type="button"
+            onClick={() => setActiveId(entry.id)}
+            className={cn(
+              "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium",
+              entry.id === topic?.id
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-line bg-surface text-muted hover:text-fg",
+            )}
+          >
+            <LessonKindIcon kind={entry.kind} className="size-3.5" />
+            {index + 1}. {entry.title}
+          </button>
+        ))}
+      </div>
+      {body}
+    </div>
+  );
+}
+
+function topicToLesson(lesson: Lesson, topic?: LessonTopic): Lesson {
+  if (!topic) return lesson;
+  return {
+    ...lesson,
+    title: topic.title || lesson.title,
+    kind: topic.kind,
+    sources: topic.sources?.length ? topic.sources : lesson.sources,
+    content: topic.content ?? {},
+    topics: [],
+  };
+}
+
+function LessonItem({
+  lesson,
+  courseSlug,
+  topicId,
+  poster,
+  initialTime,
+  onProgress,
+  onEnded,
+  onComplete,
+}: {
+  lesson: Lesson;
+  courseSlug?: string;
+  topicId?: string;
+  poster?: string;
+  initialTime?: number;
+  onProgress?: (seconds: number, duration: number) => void;
+  onEnded?: () => void;
+  onComplete?: () => void;
+}) {
   const kind = lesson.kind ?? "video";
   const content = lesson.content ?? {};
   const file = content.fileUrl || lesson.sources[0]?.src || "";
-  const protectedSrc = courseSlug ? `/api/lessons/${courseSlug}/${lesson.slug}/file` : file;
+  const query = topicId ? `?topic=${encodeURIComponent(topicId)}` : "";
+  const protectedSrc = courseSlug ? `/api/lessons/${courseSlug}/${lesson.slug}/file${query}` : file;
 
   if (kind === "video") {
     return (
       <VideoPlayer
-        key={lesson.slug}
+        key={`${lesson.slug}-${topicId ?? "main"}`}
         sources={lesson.sources}
         poster={poster}
         title={lesson.title}
@@ -49,7 +137,7 @@ export function LessonViewer({
         <audio
           className="w-full"
           controls
-          src={file}
+          src={file || protectedSrc}
           onEnded={onEnded}
           onTimeUpdate={(event) => {
             const el = event.currentTarget;
@@ -87,7 +175,7 @@ export function LessonViewer({
     return (
       <div className="grid place-items-center rounded-xl border border-line bg-surface px-6 py-16 text-center">
         <Download className="size-8 text-muted" />
-        <p className="mt-3 text-sm text-muted">Download the material for this lesson.</p>
+        <p className="mt-3 text-sm text-muted">This topic is a downloadable file.</p>
         {protectedSrc ? (
           <Button asChild className="mt-4" onClick={() => onComplete?.()}>
             <a href={protectedSrc}>Download file</a>
@@ -153,26 +241,7 @@ export function LessonViewer({
   }
 
   if (kind === "multiple") {
-    const items = content.items ?? [];
-    return (
-      <div className="rounded-xl border border-line bg-surface p-5">
-        <ul className="space-y-3">
-          {items.length === 0 ? <li className="text-sm text-muted">No materials yet.</li> : null}
-          {items.map((item) => (
-            <li key={item.url}>
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
+    return <Empty label="Open a topic above." />;
   }
 
   return <Empty label="This lesson type cannot be shown." />;
@@ -197,16 +266,8 @@ function AssignmentBox({
   return (
     <div className="rounded-xl border border-line bg-surface p-5">
       <p className="text-sm leading-relaxed whitespace-pre-wrap">{prompt || "Complete the assignment below."}</p>
-      <TextArea
-        className="mt-4"
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-      />
-      <Button
-        className="mt-3"
-        disabled={text.trim().length < 8}
-        onClick={() => onComplete?.()}
-      >
+      <TextArea className="mt-4" value={text} onChange={(event) => setText(event.target.value)} />
+      <Button className="mt-3" disabled={text.trim().length < 8} onClick={() => onComplete?.()}>
         Submit assignment
       </Button>
     </div>

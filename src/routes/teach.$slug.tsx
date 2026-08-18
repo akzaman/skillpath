@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Field, SelectField, TextArea } from "@/components/field";
-import { LessonFields, type LessonDraft } from "@/components/lesson-fields";
+import { LessonFields, emptyDraftTopic, draftFromTopics, lessonToDraft, type LessonDraft } from "@/components/lesson-fields";
 import { LessonKindIcon } from "@/components/lesson-type-picker";
 import { LessonViewer } from "@/components/lesson-viewer";
 import { PosterPicker } from "@/components/poster-picker";
@@ -76,12 +76,9 @@ function EditCoursePage() {
   const [lessonSummary, setLessonSummary] = useState("");
   const [lessonTranscript, setLessonTranscript] = useState("");
   const [lessonPreview, setLessonPreview] = useState(true);
-  const [lessonDraft, setLessonDraft] = useState<LessonDraft>({
-    kind: "video",
-    videoId: VIDEO_LIBRARY[0]!.id,
-    customUrl: "",
-    content: {},
-  });
+  const [lessonDraft, setLessonDraft] = useState<LessonDraft>(() =>
+    draftFromTopics([emptyDraftTopic("video", "Topic 1")]),
+  );
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [enrollEmail, setEnrollEmail] = useState("");
   const [enrollDays, setEnrollDays] = useState(30);
@@ -152,12 +149,7 @@ function EditCoursePage() {
       setLessonTitle("");
       setLessonSummary("");
       setLessonTranscript("");
-      setLessonDraft({
-        kind: "video",
-        videoId: VIDEO_LIBRARY[0]!.id,
-        customUrl: "",
-        content: {},
-      });
+      setLessonDraft(draftFromTopics([emptyDraftTopic("video", "Topic 1")]));
       setLessonPreview(false);
       await refresh();
       toast("Lecture added");
@@ -314,6 +306,9 @@ function EditCoursePage() {
                         <p className="font-medium">{lesson.title}</p>
                         <p className="text-xs text-muted">
                           {LESSON_KIND_META[lesson.kind ?? "video"].label}
+                          {(lesson.topics?.length ?? 0) > 1
+                            ? ` · ${lesson.topics.length} topics`
+                            : ""}
                           {lesson.preview ? " · Free preview" : ""}
                           {lesson.summary ? ` · ${lesson.summary}` : ""}
                         </p>
@@ -664,12 +659,7 @@ function LessonEditor({
   const [transcript, setTranscript] = useState(lesson.transcript);
   const [preview, setPreview] = useState(lesson.preview);
   const [pending, setPending] = useState(false);
-  const [draft, setDraft] = useState<LessonDraft>({
-    kind: lesson.kind ?? "video",
-    videoId: videoIdFromSources(lesson.sources),
-    customUrl: lesson.content?.fileUrl || customUrlFromSources(lesson.sources),
-    content: lesson.content ?? {},
-  });
+  const [draft, setDraft] = useState<LessonDraft>(() => lessonToDraft(lesson));
 
   return (
     <div className="mt-4 space-y-3 border-t border-line pt-4">

@@ -4,10 +4,12 @@ import { loadProtectedLessonFile } from "@/lib/lesson-file.server";
 export const Route = createFileRoute("/api/lessons/$courseSlug/$lessonSlug/file")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
+        const topicId = new URL(request.url).searchParams.get("topic");
         const result = await loadProtectedLessonFile({
           courseSlug: params.courseSlug,
           lessonSlug: params.lessonSlug,
+          topicId,
         });
         if ("error" in result) {
           return new Response(result.error, { status: result.status });

@@ -8,7 +8,7 @@ import {
   type Lesson,
   type VideoSource,
 } from "@/data/catalog";
-import { isLessonKind, type LessonContent, type LessonKind } from "@/data/lesson-kinds";
+import { isLessonKind, topicsFromLesson, type LessonContent, type LessonKind } from "@/data/lesson-kinds";
 import { getSql } from "@/lib/db";
 import { canAdmin, canTeach, ensureProfile, optionalAuth } from "@/lib/roles";
 
@@ -89,6 +89,12 @@ function parseLessons(rows: StudioLessonRow[]): Lesson[] {
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((row) => {
       const payload = parseLessonPayload(row.video_json, row.lesson_type);
+      const topics = topicsFromLesson({
+        title: row.title,
+        kind: payload.kind,
+        sources: payload.sources,
+        content: payload.content,
+      });
       return {
         slug: row.lesson_slug,
         title: row.title,
@@ -98,7 +104,8 @@ function parseLessons(rows: StudioLessonRow[]): Lesson[] {
         transcript: row.transcript,
         preview: row.preview,
         kind: payload.kind,
-        content: payload.content,
+        content: { ...payload.content, topics },
+        topics,
       };
     });
 }
@@ -211,15 +218,29 @@ function hideProtectedFiles(course: CourseRecord): CourseRecord {
   return {
     ...course,
     lessons: course.lessons.map((lesson) => {
-      if (!["pdf", "ppt", "scorm", "download"].includes(lesson.kind ?? "video")) return lesson;
+      const topics = (lesson.topics ?? lesson.content.topics ?? []).map((topic) => {
+        const hideFile = ["pdf", "ppt", "scorm", "download"].includes(topic.kind);
+        return {
+          ...topic,
+          sources: hideFile ? [] : topic.sources,
+          customUrl: hideFile ? "" : topic.customUrl,
+          content: {
+            ...topic.content,
+            fileUrl: hideFile ? undefined : topic.content.fileUrl,
+          },
+        };
+      });
+      const hideTop = ["pdf", "ppt", "scorm", "download"].includes(lesson.kind ?? "video");
       return {
         ...lesson,
-        sources: [],
+        sources: hideTop ? [] : lesson.sources,
         content: {
           ...lesson.content,
-          fileUrl: undefined,
+          fileUrl: hideTop ? undefined : lesson.content.fileUrl,
           items: lesson.content.items?.map((item) => ({ label: item.label, url: "" })),
+          topics,
         },
+        topics,
       };
     }),
   };

@@ -201,6 +201,7 @@ function CoursePage() {
                           </span>
                           <span className="text-[10px] font-bold tracking-wide text-muted uppercase">
                             {LESSON_KIND_META[lesson.kind ?? "video"].label}
+                            {(lesson.topics?.length ?? 0) > 1 ? ` · ${lesson.topics.length} topics` : ""}
                           </span>
                           {lesson.preview ? (
                             <span className="text-xs font-bold text-primary">{t("course.preview")}</span>

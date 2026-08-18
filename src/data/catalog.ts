@@ -30,6 +30,7 @@ export type Lesson = {
   preview: boolean;
   kind: import("@/data/lesson-kinds").LessonKind;
   content: import("@/data/lesson-kinds").LessonContent;
+  topics: import("@/data/lesson-kinds").LessonTopic[];
 };
 
 export type Course = {
@@ -95,6 +96,7 @@ function L(
     preview,
     kind: "video",
     content: {},
+    topics: [],
   };
 }
 
