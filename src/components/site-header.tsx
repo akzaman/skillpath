@@ -23,6 +23,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
 
   const nav = [
     { to: "/catalog" as const, label: t("nav.courses") },
+    { to: "/guide" as const, label: t("nav.guide") },
     ...(user
       ? [
           { to: "/dashboard" as const, label: t("nav.dashboard") },

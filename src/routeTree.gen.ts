@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProgressRouteImport } from './routes/progress'
@@ -45,6 +46,11 @@ const CatalogRoute = CatalogRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
+  '/guide': typeof GuideRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/progress': typeof ProgressRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalog'
     | '/dashboard'
+    | '/guide'
     | '/library'
     | '/login'
     | '/progress'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/catalog'
     | '/dashboard'
+    | '/guide'
     | '/library'
     | '/login'
     | '/progress'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalog'
     | '/dashboard'
+    | '/guide'
     | '/library'
     | '/login'
     | '/progress'
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CatalogRoute: typeof CatalogRoute
   DashboardRoute: typeof DashboardRoute
+  GuideRoute: typeof GuideRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   ProgressRoute: typeof ProgressRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CatalogRoute: CatalogRoute,
   DashboardRoute: DashboardRoute,
+  GuideRoute: GuideRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   ProgressRoute: ProgressRoute,

@@ -28,6 +28,11 @@ export function SiteFooter() {
           <p className="text-sm font-bold">{t("footer.learn")}</p>
           <ul className="mt-3 space-y-2 text-sm text-on-header/70">
             <li>
+              <Link to="/guide" className="hover:text-on-header">
+                {t("nav.guide")}
+              </Link>
+            </li>
+            <li>
               <Link to="/catalog" className="hover:text-on-header">
                 {t("nav.allCourses")}
               </Link>
