@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Field, SelectField, TextArea } from "@/components/field";
 import { PosterPicker } from "@/components/poster-picker";
+import { VideoField } from "@/components/video-field";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -369,26 +370,12 @@ function EditCoursePage() {
                   onChange={(event) => setLessonTranscript(event.target.value)}
                 />
               </Field>
-              <Field label="Video">
-                <SelectField value={lessonVideo} onChange={(event) => setLessonVideo(event.target.value)}>
-                  {VIDEO_LIBRARY.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.label}
-                    </option>
-                  ))}
-                  <option value="custom">Custom video URL</option>
-                </SelectField>
-              </Field>
-              {lessonVideo === "custom" ? (
-                <Field label="Video URL">
-                  <Input
-                    value={lessonCustomUrl}
-                    onChange={(event) => setLessonCustomUrl(event.target.value)}
-                    placeholder="https://…/lecture.mp4"
-                    required
-                  />
-                </Field>
-              ) : null}
+              <VideoField
+                videoId={lessonVideo}
+                customUrl={lessonCustomUrl}
+                onVideoId={setLessonVideo}
+                onCustomUrl={setLessonCustomUrl}
+              />
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -565,21 +552,12 @@ function LessonEditor({
       <Field label="Transcript">
         <TextArea value={transcript} onChange={(event) => setTranscript(event.target.value)} />
       </Field>
-      <Field label="Video">
-        <SelectField value={videoId} onChange={(event) => setVideoId(event.target.value)}>
-          {VIDEO_LIBRARY.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-          <option value="custom">Custom video URL</option>
-        </SelectField>
-      </Field>
-      {videoId === "custom" ? (
-        <Field label="Video URL">
-          <Input value={customUrl} onChange={(event) => setCustomUrl(event.target.value)} />
-        </Field>
-      ) : null}
+      <VideoField
+        videoId={videoId}
+        customUrl={customUrl}
+        onVideoId={setVideoId}
+        onCustomUrl={setCustomUrl}
+      />
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"

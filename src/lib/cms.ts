@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { resolveVideoSources } from "@/data/media";
+import { getCourse as getSeedCourse } from "@/data/catalog";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { loadAllCourses } from "@/lib/catalog-service";
 import { getSql } from "@/lib/db";
@@ -10,7 +11,7 @@ import { slugify } from "@/lib/utils";
 const courseInput = z.object({
   title: z.string().min(3).max(80),
   subtitle: z.string().max(160),
-  description: z.string().max(2000),
+  description: z.string().max(8000),
   category: z.enum([
     "Fisco e tasse",
     "CAF e Patronato",
@@ -20,7 +21,7 @@ const courseInput = z.object({
     "Lavoro e impresa",
   ]),
   level: z.enum(["Foundations", "Intermediate", "Advanced"]),
-  poster: z.string().min(1),
+  poster: z.string().min(1).max(700_000),
   instructorName: z.string().min(2).max(80),
   instructorTitle: z.string().max(80),
   instructorBio: z.string().max(600),
@@ -32,7 +33,7 @@ const lessonInput = z.object({
   summary: z.string().max(240),
   transcript: z.string().max(8000),
   videoId: z.string().min(1),
-  customUrl: z.string().max(500).optional().default(""),
+  customUrl: z.string().max(2000).optional().default(""),
   preview: z.boolean(),
   durationSeconds: z.number().int().min(0).max(72000).optional().default(0),
 });
@@ -123,6 +124,45 @@ export const updateStudioCourse = createServerFn({ method: "POST" })
     `;
     if (!updated[0]) throw new Error("Course not found");
     return { slug: data.slug };
+  });
+
+export const adoptPlatformCourse = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: unknown) => z.object({ slug: z.string().min(1) }).parse(input))
+  .handler(async ({ context, data }) => {
+    const profile = await ensureProfile(context.userId);
+    if (!canAdmin(profile.role)) throw new Error("Only an admin can edit catalogue courses");
+    const sql = await getSql();
+    const existing = await sql<{ slug: string }>`
+      select slug from studio_courses where slug = ${data.slug}
+    `;
+    if (existing[0]) return { slug: data.slug, created: false };
+    const seed = getSeedCourse(data.slug);
+    if (!seed) throw new Error("That catalogue course was not found");
+    await sql`
+      insert into studio_courses (
+        slug, owner_id, title, subtitle, description, category, level, poster,
+        instructor_name, instructor_title, instructor_bio, published, featured
+      ) values (
+        ${seed.slug}, ${context.userId}, ${seed.title}, ${seed.subtitle},
+        ${seed.description}, ${seed.category}, ${seed.level}, ${seed.poster},
+        ${seed.instructor.name}, ${seed.instructor.title}, ${seed.instructor.bio},
+        true, ${Boolean(seed.featured)}
+      )
+    `;
+    for (const [index, lesson] of seed.lessons.entries()) {
+      await sql`
+        insert into studio_lessons (
+          course_slug, lesson_slug, sort_order, title, summary, transcript,
+          video_json, preview, duration_seconds
+        ) values (
+          ${seed.slug}, ${lesson.slug}, ${index}, ${lesson.title}, ${lesson.summary},
+          ${lesson.transcript}, ${JSON.stringify(lesson.sources)}, ${lesson.preview},
+          ${lesson.durationSeconds}
+        )
+      `;
+    }
+    return { slug: seed.slug, created: true };
   });
 
 export const deleteStudioCourse = createServerFn({ method: "POST" })

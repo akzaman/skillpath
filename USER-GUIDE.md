@@ -101,7 +101,8 @@ Save. You go to the editor.
 Open the **Lectures** tab.
 
 - Title, summary, optional transcript
-- A clip from the video library, or a custom video URL
+- A clip from the video library, a **video file upload** (MP4/WebM up to 4 MB), or a **custom URL** (hosted MP4, YouTube, or Vimeo)
+- Poster: pick a default, **upload a photo**, or paste an image URL
 - **Preview** on if guests may watch that lesson without enrolling
 
 Add **at least one lecture** before you publish.
@@ -111,8 +112,9 @@ Add **at least one lecture** before you publish.
 - Arrows change lecture order
 - Edit a lesson to change the video or copy
 - Delete a lesson you no longer need
-- **Details** updates title, poster, and instructor
+- **Details** updates title, poster (upload or URL), and instructor
 - **Students** lists everyone enrolled
+- Admins can open any catalogue/demo course with **Edit content** (Teach or Admin → Catalog). That copies it into the studio so title, lectures, poster, and video can change.
 
 ### 6. Publish
 

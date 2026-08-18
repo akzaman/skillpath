@@ -10,6 +10,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { VideoSource } from "@/data/catalog";
+import { embedSrc, parseVideoUrl } from "@/lib/video-url";
 import { cn, formatDuration } from "@/lib/utils";
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
@@ -236,6 +237,22 @@ export function VideoPlayer({
   const bufferPct = duration ? (buffered / duration) * 100 : 0;
   const showPoster = Boolean(poster) && !started;
   const showBigPlay = !playing;
+  const firstSrc = sources[0]?.src ?? "";
+  const embed = firstSrc ? embedSrc(parseVideoUrl(firstSrc)) : null;
+
+  if (embed) {
+    return (
+      <div className={cn("overflow-hidden rounded-md bg-header", className)}>
+        <iframe
+          src={embed}
+          title={title}
+          className="aspect-video w-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
 
   return (
     <div

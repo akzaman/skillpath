@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RedirectToSignIn } from "@/lib/auth/gates";
-import { getTeacherStats, listMyStudioCourses, setStudioPublished } from "@/lib/cms";
-import { applyToTeach, canTeach } from "@/lib/roles";
+import { adoptPlatformCourse, getTeacherStats, listMyStudioCourses, setStudioPublished } from "@/lib/cms";
+import { listVisibleCourses } from "@/lib/catalog-service";
+import { applyToTeach, canAdmin, canTeach } from "@/lib/roles";
 import { useProfile } from "@/lib/use-profile";
 
 export const Route = createFileRoute("/teach/")({
@@ -33,6 +34,21 @@ function TeachPage() {
     queryKey: ["teacher-stats", user?.id],
     queryFn: () => getTeacherStats(),
     enabled: Boolean(user && profile && canTeach(profile.role)),
+  });
+  const catalogQuery = useQuery({
+    queryKey: ["catalog", user?.id],
+    queryFn: () => listVisibleCourses(),
+    enabled: Boolean(user && profile && canAdmin(profile.role)),
+  });
+  const adopt = useMutation({
+    mutationFn: (slug: string) => adoptPlatformCourse({ data: { slug } }),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["studio-courses"] });
+      await queryClient.invalidateQueries({ queryKey: ["catalog"] });
+      toast(result.created ? "Course is now editable in the studio" : "Opening studio editor");
+      window.location.assign(`/teach/${result.slug}`);
+    },
+    onError: (error) => toast(error.message),
   });
   const apply = useMutation({
     mutationFn: () => applyToTeach({ data: { pitch } }),
@@ -205,6 +221,41 @@ function TeachPage() {
             ))
           )}
         </ul>
+
+        {profile && canAdmin(profile.role) ? (
+          <section className="mt-12">
+            <h2 className="text-xl font-bold">Catalogue courses</h2>
+            <p className="mt-1 text-sm text-muted">
+              Take over a demo course to change its title, poster, lectures, and video.
+            </p>
+            <ul className="mt-4 divide-y divide-line overflow-hidden rounded-md border border-line bg-surface">
+              {(catalogQuery.data ?? [])
+                .filter((course) => course.source === "platform")
+                .map((course) => (
+                  <li
+                    key={course.slug}
+                    className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
+                  >
+                    <img src={course.poster} alt="" className="h-16 w-28 rounded-sm object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold">{course.title}</p>
+                      <p className="text-sm text-muted">
+                        {course.lessons.length} lectures · catalogue
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={adopt.isPending}
+                      onClick={() => adopt.mutate(course.slug)}
+                    >
+                      Edit content
+                    </Button>
+                  </li>
+                ))}
+            </ul>
+          </section>
+        ) : null}
       </main>
       <SiteFooter />
     </div>

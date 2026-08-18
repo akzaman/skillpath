@@ -72,11 +72,11 @@ export const GUIDE: Record<Locale, GuideCopy> = {
         },
         {
           title: "Add lectures",
-          body: "Open the Lectures tab. Set a title, summary, optional transcript. Pick a clip from the library or paste a video URL. Turn Preview on if guests may watch that lesson without enrolling. Add at least one lecture before you publish.",
+          body: "Open the Lectures tab. Set a title, summary, optional transcript. Pick a library clip, upload an MP4/WebM (up to 4 MB), or paste a hosted MP4 / YouTube / Vimeo URL. Upload a poster photo or paste an image URL in Details. Turn Preview on if guests may watch that lesson without enrolling. Add at least one lecture before you publish.",
         },
         {
           title: "Edit and reorder",
-          body: "Use the arrows to change lecture order. Edit a lesson to change the video or copy. Delete a lesson you no longer need. Details tab updates title, poster, and instructor. Students tab lists everyone enrolled.",
+          body: "Arrows change lecture order. Edit a lesson to change the video or copy. Delete a lesson you no longer need. Details updates title, poster, and instructor. Students lists everyone enrolled. Admins tap Edit content on a catalogue course to change the demo lessons and media.",
         },
         {
           title: "Publish",
