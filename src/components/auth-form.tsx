@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authClient, authEnabled, GROK_PROVIDERS, signIn } from "@/lib/auth/client";
+import { authClient, authEnabled, GROK_PROVIDERS, signIn, socialSignInEnabled } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,34 +73,37 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
           : "Create a free account to enroll and save your place."}
       </p>
 
-      {authEnabled ? (
-        <div className="mt-8 flex flex-col gap-2">
-          {GROK_PROVIDERS.map((provider) => (
-            <Button
-              key={provider.providerId}
-              type="button"
-              variant="outline"
-              onClick={() =>
-                void signIn(provider.providerId, {
-                  callbackURL,
-                  errorCallbackURL: "/login",
-                })
-              }
-            >
-              {provider.providerId === "grok-google" ? <GoogleMark /> : <XMark />}
-              Continue with {provider.label}
-            </Button>
-          ))}
-        </div>
-      ) : (
+      {authEnabled && socialSignInEnabled() ? (
+        <>
+          <div className="mt-8 flex flex-col gap-2">
+            {GROK_PROVIDERS.map((provider) => (
+              <Button
+                key={provider.providerId}
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  void signIn(provider.providerId, {
+                    callbackURL,
+                    errorCallbackURL: "/login",
+                  })
+                }
+              >
+                {provider.providerId === "grok-google" ? <GoogleMark /> : <XMark />}
+                Continue with {provider.label}
+              </Button>
+            ))}
+          </div>
+          <div className="my-6 flex items-center gap-3 text-xs tracking-wide text-subtle uppercase">
+            <span className="h-px flex-1 bg-line" />
+            or with email
+            <span className="h-px flex-1 bg-line" />
+          </div>
+        </>
+      ) : !authEnabled ? (
         <p className="mt-8 text-sm text-muted">Sign-in is disabled.</p>
+      ) : (
+        <div className="mt-8" />
       )}
-
-      <div className="my-6 flex items-center gap-3 text-xs tracking-wide text-subtle uppercase">
-        <span className="h-px flex-1 bg-line" />
-        or with email
-        <span className="h-px flex-1 bg-line" />
-      </div>
 
       <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)}>
         {mode === "signup" ? (

