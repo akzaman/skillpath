@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { authClient, authEnabled, GROK_PROVIDERS, signIn, socialSignInEnabled } from "@/lib/auth/client";
+import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ function XMark() {
 }
 
 export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,12 +67,10 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
   return (
     <div className="w-full max-w-sm">
       <h1 className="mt-1 text-2xl font-bold tracking-tight">
-        {mode === "signin" ? "Log in to the Centre" : "Create your student account"}
+        {mode === "signin" ? t("auth.loginTitle") : t("auth.signupTitle")}
       </h1>
       <p className="mt-2 text-sm text-muted">
-        {mode === "signin"
-          ? "Pick up a lecture and keep your place at the desk."
-          : "Create a free account to enroll in a mini-course."}
+        {mode === "signin" ? t("auth.loginLede") : t("auth.signupLede")}
       </p>
 
       {authEnabled && socialSignInEnabled() ? (
@@ -89,18 +89,18 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
                 }
               >
                 {provider.providerId === "grok-google" ? <GoogleMark /> : <XMark />}
-                Continue with {provider.label}
+                {t("auth.continueWith", { label: provider.label })}
               </Button>
             ))}
           </div>
           <div className="my-6 flex items-center gap-3 text-xs tracking-wide text-subtle uppercase">
             <span className="h-px flex-1 bg-line" />
-            or with email
+            {t("auth.orEmail")}
             <span className="h-px flex-1 bg-line" />
           </div>
         </>
       ) : !authEnabled ? (
-        <p className="mt-8 text-sm text-muted">Sign-in is disabled.</p>
+        <p className="mt-8 text-sm text-muted">{t("auth.disabled")}</p>
       ) : (
         <div className="mt-8" />
       )}
@@ -108,18 +108,18 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
       <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)}>
         {mode === "signup" ? (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("auth.name")}</Label>
             <Input
               id="name"
               autoComplete="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Your name"
+              placeholder={t("auth.namePh")}
             />
           </div>
         ) : null}
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("auth.email")}</Label>
           <Input
             id="email"
             type="email"
@@ -127,11 +127,11 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@email.com"
+            placeholder={t("auth.emailPh")}
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("auth.password")}</Label>
           <Input
             id="password"
             type="password"
@@ -140,17 +140,17 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="At least 8 characters"
+            placeholder={t("auth.passwordPh")}
           />
         </div>
         {error ? <p className="text-sm text-danger">{error}</p> : null}
         <Button type="submit" disabled={pending || !authEnabled}>
-          {pending ? "Please wait…" : mode === "signin" ? "Log in" : "Sign up"}
+          {pending ? t("auth.wait") : mode === "signin" ? t("auth.submitLogin") : t("auth.submitSignup")}
         </Button>
       </form>
 
       <p className="mt-6 text-sm text-muted">
-        {mode === "signin" ? "Don't have an account?" : "Already have an account?"}{" "}
+        {mode === "signin" ? t("auth.noAccount") : t("auth.hasAccount")}{" "}
         <button
           type="button"
           className="font-bold text-primary hover:underline"
@@ -159,7 +159,7 @@ export function AuthForm({ callbackURL = "/" }: { callbackURL?: string }) {
             setError(null);
           }}
         >
-          {mode === "signin" ? "Sign up" : "Log in"}
+          {mode === "signin" ? t("auth.submitSignup") : t("auth.submitLogin")}
         </button>
       </p>
     </div>

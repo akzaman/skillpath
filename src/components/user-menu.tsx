@@ -3,6 +3,7 @@ import { Bookmark, GraduationCap, LayoutDashboard, LogOut, Shield, UserRound } f
 import { signOut } from "@/lib/auth/client";
 import { canAdmin, canTeach } from "@/lib/roles";
 import { useProfile } from "@/lib/use-profile";
+import { useI18n } from "@/lib/i18n";
 import { initialsFromName } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ export function AuthSlot({
   onDark?: boolean;
 }) {
   const { user, isPending, profile } = useProfile();
+  const { t } = useI18n();
   if (isPending) {
     return <Skeleton className="size-9 rounded-full bg-on-header/20" />;
   }
@@ -39,11 +41,11 @@ export function AuthSlot({
               : undefined
           }
         >
-          <Link to={signInTo}>Log in</Link>
+          <Link to={signInTo}>{t("nav.login")}</Link>
         </Button>
         <Button asChild size="sm" className="hidden sm:inline-flex">
           <Link to={signInTo} search={{ next: "/" }}>
-            Sign up
+            {t("nav.signup")}
           </Link>
         </Button>
       </div>
@@ -60,7 +62,7 @@ export function AuthSlot({
         <button
           type="button"
           className="grid size-9 place-items-center overflow-hidden rounded-full bg-primary text-xs font-bold text-primary-fg ring-2 ring-on-header/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-          aria-label="Account menu"
+          aria-label={t("nav.account")}
         >
           {user.profileImageUrl ? (
             <img src={user.profileImageUrl} alt="" className="size-full object-cover" />
@@ -73,46 +75,46 @@ export function AuthSlot({
         <DropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
             <span className="text-sm text-fg">{label}</span>
-            <span className="text-xs font-normal text-muted capitalize">{role}</span>
+            <span className="text-xs font-normal text-muted capitalize">{t(`role.${role}`)}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/dashboard">
             <LayoutDashboard className="size-4 text-muted" />
-            Dashboard
+            {t("nav.dashboard")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/progress">
             <LayoutDashboard className="size-4 text-muted" />
-            Progress
+            {t("nav.progress")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/library">
             <UserRound className="size-4 text-muted" />
-            My learning
+            {t("nav.learning")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/library" search={{ tab: "saved" }}>
             <Bookmark className="size-4 text-muted" />
-            Wishlist
+            {t("nav.wishlist")}
           </Link>
         </DropdownMenuItem>
         {canTeach(role) ? (
           <DropdownMenuItem asChild>
             <Link to="/teach">
               <GraduationCap className="size-4 text-muted" />
-              Teacher studio
+              {t("nav.studio")}
             </Link>
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem asChild>
             <Link to="/teach">
               <GraduationCap className="size-4 text-muted" />
-              Become a teacher
+              {t("nav.becomeTeacher")}
             </Link>
           </DropdownMenuItem>
         )}
@@ -120,7 +122,7 @@ export function AuthSlot({
           <DropdownMenuItem asChild>
             <Link to="/admin">
               <Shield className="size-4 text-muted" />
-              Admin
+              {t("nav.admin")}
             </Link>
           </DropdownMenuItem>
         ) : null}
@@ -128,12 +130,12 @@ export function AuthSlot({
         <DropdownMenuItem asChild>
           <Link to="/dashboard">
             <LayoutDashboard className="size-4 text-muted" />
-            Switch role
+            {t("nav.switchRole")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void signOut("/")}>
           <LogOut className="size-4 text-muted" />
-          Log out
+          {t("nav.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -43,8 +43,8 @@
   --radius-xl: 12px;
   --radius: 4px;
 
-  --font-display: "DM Sans", "Segoe UI", system-ui, sans-serif;
-  --font-sans: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --font-display: "DM Sans", "Noto Sans Bengali", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "DM Sans", "Noto Sans Bengali", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --shadow-soft: 0 2px 12px rgb(28 29 31 / 0.1);
@@ -75,6 +75,15 @@
     line-height: 1.5;
     background-color: var(--color-bg);
     color: var(--color-fg);
+  }
+
+  html.locale-bn,
+  html.locale-bn body,
+  html.locale-bn h1,
+  html.locale-bn h2,
+  html.locale-bn h3,
+  html.locale-bn .font-display {
+    font-family: "Noto Sans Bengali", "DM Sans", system-ui, sans-serif;
   }
 
   h1,

@@ -21,6 +21,7 @@ import { formatPrice, getMarket, getReviews } from "@/data/market";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { enrollInCourse, getCourseLearning, toggleBookmark } from "@/lib/learning";
 import { cn, formatMinutes } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/course/$slug")({
   loader: async ({ params }) => {
@@ -36,14 +37,15 @@ export const Route = createFileRoute("/course/$slug")({
 });
 
 function CourseMissing() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-6 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">Course not found</h1>
-        <p className="mt-2 text-sm text-muted">That course is not in the catalogue.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("course.missing")}</h1>
+        <p className="mt-2 text-sm text-muted">{t("course.missingBody")}</p>
         <Button asChild className="mt-6">
-          <Link to="/catalog">Browse courses</Link>
+          <Link to="/catalog">{t("dash.browse")}</Link>
         </Button>
       </main>
     </div>
@@ -51,6 +53,7 @@ function CourseMissing() {
 }
 
 function CoursePage() {
+  const { t, category: trCat, level: trLevel } = useI18n();
   const { course } = Route.useLoaderData();
   const market = getMarket(course.slug);
   const courseReviews = getReviews(course.slug);
@@ -86,18 +89,18 @@ function CoursePage() {
     mutationFn: () => enrollInCourse({ data: { courseSlug: course.slug } }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["course-learning", course.slug] });
-      toast("Enrolled — it's in My learning");
+      toast(t("course.enrolled"));
     },
-    onError: () => toast("Log in to enroll"),
+    onError: () => toast(t("course.loginEnroll")),
   });
 
   const bookmark = useMutation({
     mutationFn: () => toggleBookmark({ data: { courseSlug: course.slug } }),
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["course-learning", course.slug] });
-      toast(result.bookmarked ? "Added to wishlist" : "Removed from wishlist");
+      toast(result.bookmarked ? t("course.wishlistAdd") : t("course.wishlistRemove"));
     },
-    onError: () => toast("Log in to save courses"),
+    onError: () => toast(t("course.loginSave")),
   });
 
   return (
@@ -107,7 +110,7 @@ function CoursePage() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_20rem]">
           <div>
             <p className="text-sm font-bold text-primary">
-              {course.category} · {course.level}
+              {trCat(course.category)} · {trLevel(course.level)}
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{course.title}</h1>
             <p className="mt-3 max-w-2xl text-base text-on-header/80">{course.subtitle}</p>
@@ -119,7 +122,7 @@ function CoursePage() {
               />
             </div>
             <p className="mt-3 text-sm text-on-header/75">
-              Created by{" "}
+              {t("course.createdBy")}{" "}
               <span className="font-bold text-on-header underline decoration-on-header/30">
                 {course.instructor.name}
               </span>
@@ -127,7 +130,7 @@ function CoursePage() {
             <div className="mt-2 flex flex-wrap gap-4 text-sm text-on-header/70">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-4" />
-                Last updated {market.updatedLabel}
+                {t("course.updated", { date: market.updatedLabel })}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Globe className="size-4" />
@@ -135,7 +138,7 @@ function CoursePage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Signal className="size-4" />
-                {formatMinutes(courseDuration(course))} total
+                {t("course.total", { time: formatMinutes(courseDuration(course)) })}
               </span>
             </div>
           </div>
@@ -145,7 +148,7 @@ function CoursePage() {
       <main className="mx-auto grid w-full max-w-7xl flex-1 gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_20rem]">
         <div className="min-w-0">
           <section className="rounded-md border border-line bg-surface p-5">
-            <h2 className="text-xl font-bold">What you'll learn</h2>
+            <h2 className="text-xl font-bold">{t("course.learn")}</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               {market.outcomes.map((outcome) => (
                 <li key={outcome} className="flex gap-2 text-sm">
@@ -157,14 +160,17 @@ function CoursePage() {
           </section>
 
           <section className="mt-8">
-            <h2 className="text-xl font-bold">Course content</h2>
+            <h2 className="text-xl font-bold">{t("course.content")}</h2>
             <p className="mt-1 text-sm text-muted">
-              {course.lessons.length} lectures · {formatMinutes(courseDuration(course))}
+              {t("course.lectures", {
+                n: course.lessons.length,
+                time: formatMinutes(courseDuration(course)),
+              })}
             </p>
             {user && completedCount > 0 ? (
               <div className="mt-3 max-w-sm">
                 <div className="mb-1 flex justify-between text-xs text-muted">
-                  <span>Your progress</span>
+                  <span>{t("course.yourProgress")}</span>
                   <span className="tabular-nums">
                     {completedCount}/{total}
                   </span>
@@ -186,11 +192,11 @@ function CoursePage() {
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-medium">
-                            {done ? "Completed · " : ""}
+                            {done ? t("course.completed") : ""}
                             {index + 1}. {lesson.title}
                           </span>
                           {lesson.preview ? (
-                            <span className="text-xs font-bold text-primary">Preview</span>
+                            <span className="text-xs font-bold text-primary">{t("course.preview")}</span>
                           ) : null}
                         </span>
                         <span className="mt-0.5 block text-xs text-muted">{lesson.summary}</span>
@@ -206,14 +212,14 @@ function CoursePage() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-bold">Description</h2>
+            <h2 className="text-xl font-bold">{t("course.description")}</h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
               {course.description}
             </p>
           </section>
 
           <section className="mt-10 rounded-md border border-line bg-surface p-5">
-            <h2 className="text-xl font-bold">Instructor</h2>
+            <h2 className="text-xl font-bold">{t("course.instructor")}</h2>
             <div className="mt-4 flex items-center gap-3">
               <span className="grid size-14 place-items-center rounded-full bg-header text-sm font-bold text-on-header">
                 {course.instructor.initials}
@@ -230,7 +236,7 @@ function CoursePage() {
 
           {courseReviews.length > 0 ? (
             <section className="mt-10 mb-8">
-              <h2 className="text-xl font-bold">Student feedback</h2>
+              <h2 className="text-xl font-bold">{t("course.feedback")}</h2>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-3xl font-bold text-star tabular-nums">
                   {market.rating.toFixed(1)}
@@ -295,7 +301,7 @@ function CoursePage() {
               <div className="mt-4 flex flex-col gap-2">
                 <Button asChild size="lg" className="w-full">
                   <Link {...watchTo}>
-                    {completedCount > 0 ? "Continue course" : "Enroll now"}
+                    {completedCount > 0 ? t("course.continue") : t("course.enroll")}
                   </Link>
                 </Button>
                 {!isPending && user && !learning?.enrolled ? (
@@ -312,7 +318,7 @@ function CoursePage() {
                 {!isPending && !user ? (
                   <Button asChild variant="outline" size="lg" className="w-full">
                     <Link to="/login" search={{ next: `/course/${course.slug}` }}>
-                      Log in to enroll
+                      {t("course.loginEnroll")}
                     </Link>
                   </Button>
                 ) : null}
@@ -322,7 +328,7 @@ function CoursePage() {
                   disabled={bookmark.isPending}
                 >
                   <Bookmark className={cn("size-4", learning?.bookmarked && "fill-current")} />
-                  {learning?.bookmarked ? "On wishlist" : "Add to wishlist"}
+                  {learning?.bookmarked ? t("course.wishlistRemove") : t("course.wishlist")}
                 </Button>
               </div>
               <ul className="mt-4 space-y-1.5 text-xs text-muted">

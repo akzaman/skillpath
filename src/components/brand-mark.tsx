@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { APP_NAME, APP_SHORT } from "@/lib/brand";
+import { APP_SHORT } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function BrandMark({
@@ -9,6 +10,7 @@ export function BrandMark({
   onDark?: boolean;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <Link
       to="/"
@@ -31,7 +33,7 @@ export function BrandMark({
         </span>
         <span className="block font-bold tracking-tight text-sm sm:text-[15px]">
           <span className="sm:hidden">{APP_SHORT}</span>
-          <span className="hidden sm:inline">{APP_NAME}</span>
+          <span className="hidden sm:inline">{t("app.name")}</span>
         </span>
       </span>
     </Link>

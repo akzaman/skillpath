@@ -2,10 +2,12 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { AuthSlot } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CATEGORIES } from "@/data/catalog";
+import { useI18n } from "@/lib/i18n";
 import { canAdmin, canTeach } from "@/lib/roles";
 import { useProfile } from "@/lib/use-profile";
 import { cn } from "@/lib/utils";
@@ -14,24 +16,25 @@ export function SiteHeader(_props?: { solid?: boolean }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, profile } = useProfile();
+  const { t, category: trCat } = useI18n();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [explore, setExplore] = useState(false);
 
   const nav = [
-    { to: "/catalog" as const, label: "Courses" },
+    { to: "/catalog" as const, label: t("nav.courses") },
     ...(user
       ? [
-          { to: "/dashboard" as const, label: "Dashboard" },
-          { to: "/progress" as const, label: "Progress" },
-          { to: "/library" as const, label: "My learning" },
+          { to: "/dashboard" as const, label: t("nav.dashboard") },
+          { to: "/progress" as const, label: t("nav.progress") },
+          { to: "/library" as const, label: t("nav.learning") },
         ]
       : []),
     ...(profile && canTeach(profile.role)
-      ? [{ to: "/teach" as const, label: "Teach" }]
+      ? [{ to: "/teach" as const, label: t("nav.teach") }]
       : []),
     ...(profile && canAdmin(profile.role)
-      ? [{ to: "/admin" as const, label: "Admin" }]
+      ? [{ to: "/admin" as const, label: t("nav.admin") }]
       : []),
   ];
 
@@ -49,7 +52,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
           size="icon-sm"
           className="text-on-header hover:bg-on-header/10 md:hidden"
           onClick={() => setOpen(true)}
-          aria-label="Open menu"
+          aria-label={t("nav.menu")}
         >
           <Menu className="size-5" />
         </Button>
@@ -63,7 +66,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
             onClick={() => setExplore((value) => !value)}
             onBlur={() => window.setTimeout(() => setExplore(false), 150)}
           >
-            Explore
+            {t("nav.explore")}
           </button>
           {explore ? (
             <div className="absolute top-full left-0 z-50 mt-1 w-56 rounded-md border border-line bg-surface py-2 text-fg shadow-soft">
@@ -75,7 +78,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
                   className="block px-4 py-2 text-sm hover:bg-elevated"
                   onClick={() => setExplore(false)}
                 >
-                  {category}
+                  {trCat(category)}
                 </Link>
               ))}
               <Link
@@ -83,7 +86,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
                 className="block border-t border-line px-4 py-2 text-sm font-medium hover:bg-elevated"
                 onClick={() => setExplore(false)}
               >
-                All courses
+                {t("nav.allCourses")}
               </Link>
             </div>
           ) : null}
@@ -95,7 +98,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search CAF, A2, Patente B…"
+              placeholder={t("nav.search")}
               className="h-11 w-full rounded-full border border-line-strong bg-surface pr-4 pl-10 text-sm text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
             />
           </label>
@@ -116,13 +119,14 @@ export function SiteHeader(_props?: { solid?: boolean }) {
           ))}
         </nav>
 
+        <LanguageSwitcher onDark />
         <AuthSlot onDark />
       </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="bg-surface text-fg">
           <SheetHeader>
-            <SheetTitle>National Education Center</SheetTitle>
+            <SheetTitle>{t("app.name")}</SheetTitle>
           </SheetHeader>
           <form onSubmit={submitSearch} className="mt-4">
             <label className="relative block">
@@ -130,7 +134,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search CAF, A2, Patente B…"
+                placeholder={t("nav.search")}
                 className="h-11 w-full rounded-full border border-line bg-elevated pr-4 pl-10 text-sm text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               />
             </label>
@@ -154,7 +158,7 @@ export function SiteHeader(_props?: { solid?: boolean }) {
                 onClick={() => setOpen(false)}
                 className="rounded-md px-3 py-3 text-base text-muted hover:bg-elevated hover:text-fg"
               >
-                {category}
+                {trCat(category)}
               </Link>
             ))}
           </nav>

@@ -11,6 +11,7 @@ import { RedirectToSignIn } from "@/lib/auth/gates";
 import { getCourseLearning, getLibrary, getProgressOverview } from "@/lib/learning";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatMinutes } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/progress")({
   component: ProgressPage,
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/progress")({
 });
 
 function ProgressPage() {
+  const { t } = useI18n();
   const { user, isPending } = useCurrentUserState();
   const overviewQuery = useQuery({
     queryKey: ["progress-overview", user?.id],
@@ -55,19 +57,17 @@ function ProgressPage() {
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
-        <p className="text-sm font-bold tracking-wide text-primary uppercase">Student</p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">Your progress</h1>
-        <p className="mt-2 max-w-xl text-muted">
-          Lectures you finish are saved to this account. Pick up any course where you left it.
-        </p>
+        <p className="text-sm font-bold tracking-wide text-primary uppercase">{t("prog.kicker")}</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight">{t("prog.title")}</h1>
+        <p className="mt-2 max-w-xl text-muted">{t("prog.lede")}</p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {[
-            { label: "Courses", value: overview?.enrolledCourses ?? enrolled.length },
-            { label: "Lectures done", value: overview?.completedLessons ?? 0 },
-            { label: "Started", value: overview?.startedLessons ?? 0 },
+            { label: t("dash.courses"), value: overview?.enrolledCourses ?? enrolled.length },
+            { label: t("dash.done"), value: overview?.completedLessons ?? 0 },
+            { label: t("prog.started"), value: overview?.startedLessons ?? 0 },
             {
-              label: "Time watched",
+              label: t("prog.time"),
               value: formatMinutes(overview?.watchedSeconds ?? 0),
             },
           ].map((item) => (

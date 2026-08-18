@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES, type Category } from "@/data/catalog";
 import { listPublishedCourses } from "@/lib/catalog-service";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/catalog")({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/catalog")({
 });
 
 function CatalogPage() {
+  const { t, category: trCat } = useI18n();
   const catalog = Route.useLoaderData();
   const { q = "", category: initialCategory } = Route.useSearch();
   const [query, setQuery] = useState(q);
@@ -60,19 +62,20 @@ function CatalogPage() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
         <p className="text-sm text-muted">
-          {results.length} result{results.length === 1 ? "" : "s"}
-          {q ? ` for “${q}”` : ""}
+          {q
+            ? t("catalog.resultsFor", { n: results.length, q })
+            : t("catalog.results", { n: results.length })}
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight">
-          {category === "All" ? "All courses" : `${category} courses`}
+          {category === "All" ? t("catalog.title") : t("catalog.titleCat", { cat: trCat(category) })}
         </h1>
 
         <div className="mt-6 flex flex-col gap-4">
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search courses"
-            aria-label="Search courses"
+            placeholder={t("catalog.search")}
+            aria-label={t("catalog.search")}
             className="h-12 max-w-md rounded-sm bg-surface"
           />
           <div className="flex flex-wrap gap-2">
@@ -88,7 +91,7 @@ function CatalogPage() {
                     : "border-line bg-surface text-muted hover:border-fg hover:text-fg",
                 )}
               >
-                {item}
+                {item === "All" ? t("cat.all") : trCat(item)}
               </button>
             ))}
           </div>
@@ -101,7 +104,7 @@ function CatalogPage() {
         </div>
         {results.length === 0 ? (
           <p className="mt-16 text-center text-sm text-muted">
-            No courses match that search. Try another topic or a shorter query.
+            {t("catalog.empty")}
           </p>
         ) : null}
       </main>

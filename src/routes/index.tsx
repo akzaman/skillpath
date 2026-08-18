@@ -10,6 +10,7 @@ import { CATEGORIES } from "@/data/catalog";
 import { getMarket } from "@/data/market";
 import { listPublishedCourses } from "@/lib/catalog-service";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { useI18n } from "@/lib/i18n";
 import { getContinueWatching } from "@/lib/learning";
 
 export const Route = createFileRoute("/")({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { t, category: trCat } = useI18n();
   const courses = Route.useLoaderData();
   const featured = courses.find((course) => course.featured) ?? courses[0];
   const featuredMarket = featured ? getMarket(featured.slug) : null;
@@ -47,15 +49,12 @@ function HomePage() {
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:py-16">
             <div>
               <p className="text-[11px] font-semibold tracking-[0.2em] text-badge uppercase">
-                National Education Center · Italy
+                {t("home.kicker")}
               </p>
               <h1 className="mt-3 max-w-xl text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl">
-                Learn Italy. Handle the paperwork. Speak with confidence.
+                {t("home.hero")}
               </h1>
-              <p className="mt-4 max-w-lg text-base text-on-header/75">
-                Mini-courses for the tax system, dichiarazione, CAF, Patronato, Patente B,
-                Italian A1–A2, spoken Italian, Sportello Immigrazione, and starting a business.
-              </p>
+              <p className="mt-4 max-w-lg text-base text-on-header/75">{t("home.lede")}</p>
               <form
                 className="relative mt-6 max-w-lg"
                 onSubmit={(event) => {
@@ -70,7 +69,7 @@ function HomePage() {
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search CAF, A2, Patente B, dichiarazione…"
+                  placeholder={t("home.search")}
                   className="h-14 w-full rounded-sm border-0 bg-surface pr-4 pl-12 text-base text-fg placeholder:text-subtle focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                 />
               </form>
@@ -84,12 +83,12 @@ function HomePage() {
                 <img src={featured.poster} alt="" className="aspect-[16/10] w-full object-cover" />
                 <div className="absolute inset-x-0 bottom-0 bg-header/85 p-5">
                   <p className="text-xs font-bold tracking-wide text-badge uppercase">
-                    Featured course
+                    {t("home.featured")}
                   </p>
                   <p className="mt-1 text-xl font-bold">{featured.title}</p>
                   <p className="mt-1 text-sm text-on-header/70">
                     {featured.instructor.name} · {featuredMarket.rating.toFixed(1)} ·{" "}
-                    {featuredMarket.students.toLocaleString()} students
+                    {t("home.students", { n: featuredMarket.students.toLocaleString() })}
                   </p>
                 </div>
               </Link>
@@ -106,7 +105,7 @@ function HomePage() {
                 search={{ category }}
                 className="shrink-0 border-b-2 border-transparent px-3 py-3 text-sm font-medium text-muted hover:border-fg hover:text-fg"
               >
-                {category}
+                {trCat(category)}
               </Link>
             ))}
           </div>
@@ -137,7 +136,7 @@ function HomePage() {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div>
                 <p className="text-xs font-bold tracking-wide text-muted uppercase">
-                  Let's jump back in
+                  {t("home.resumeKicker")}
                 </p>
                 <p className="mt-1 text-lg font-bold">{resume.course.title}</p>
               </div>
@@ -149,7 +148,7 @@ function HomePage() {
                     lessonSlug: resume.lessonSlug,
                   }}
                 >
-                  Continue learning
+                  {t("home.continue")}
                 </Link>
               </Button>
             </div>
@@ -157,10 +156,8 @@ function HomePage() {
         ) : null}
 
         <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6">
-          <h2 className="text-2xl font-bold">Open this week</h2>
-          <p className="mt-1 text-sm text-muted">
-            The desks people are sitting down at right now.
-          </p>
+          <h2 className="text-2xl font-bold">{t("home.openWeek")}</h2>
+          <p className="mt-1 text-sm text-muted">{t("home.openWeekSub")}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {courses.slice(0, 4).map((course) => (
               <CourseCard key={course.slug} course={course} />
@@ -171,9 +168,9 @@ function HomePage() {
         {bestsellers.length > 0 ? (
           <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
             <div className="flex items-end justify-between gap-4">
-              <h2 className="text-2xl font-bold">Most requested</h2>
+              <h2 className="text-2xl font-bold">{t("home.mostRequested")}</h2>
               <Link to="/catalog" className="text-sm font-bold text-primary hover:underline">
-                Show all
+                {t("home.showAll")}
               </Link>
             </div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -186,7 +183,7 @@ function HomePage() {
 
         {language.length > 0 ? (
           <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6">
-            <h2 className="text-2xl font-bold">Lingua italiana</h2>
+            <h2 className="text-2xl font-bold">{trCat("Lingua italiana")}</h2>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {language.map((course) => (
                 <CourseCard key={course.slug} course={course} />
@@ -200,18 +197,18 @@ function HomePage() {
             {[
               {
                 icon: MonitorPlay,
-                title: "Students",
-                body: "Enroll in a mini-course, watch at your pace, and pick up the exact lesson you left.",
+                title: t("home.studentsTitle"),
+                body: t("home.studentsBody"),
               },
               {
                 icon: Award,
-                title: "Teachers",
-                body: "CAF operators, instructors, and sportello staff can publish a course from the studio.",
+                title: t("home.teachersTitle"),
+                body: t("home.teachersBody"),
               },
               {
                 icon: Infinity,
-                title: "Admins",
-                body: "The centre manager promotes teachers and keeps the catalog honest.",
+                title: t("home.adminsTitle"),
+                body: t("home.adminsBody"),
               },
             ].map((item) => (
               <div key={item.title} className="flex gap-4">

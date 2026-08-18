@@ -12,6 +12,7 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { Button } from "@/components/ui/button";
 import { AuthProvider } from "@/lib/auth/provider";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
+import { LocaleProvider, useI18n } from "@/lib/i18n";
 import { createServerFn } from "@tanstack/react-start";
 import appCss from "../styles.css?url";
 
@@ -57,7 +58,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Noto+Sans+Bengali:wght@400;500;700&display=swap",
       },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
@@ -68,14 +69,15 @@ export const Route = createRootRoute({
 });
 
 function RootNotFound() {
+  const { t } = useI18n();
   return (
     <main className="grid min-h-dvh place-items-center px-6 text-center">
       <div>
         <p className="text-xs tracking-[0.16em] text-muted uppercase">404</p>
-        <h1 className="mt-2 font-display text-4xl tracking-tight">Page not found</h1>
-        <p className="mt-2 text-sm text-muted">That page is not at the National Education Center.</p>
+        <h1 className="mt-2 font-display text-4xl tracking-tight">{t("notfound.title")}</h1>
+        <p className="mt-2 text-sm text-muted">{t("notfound.body")}</p>
         <Button asChild className="mt-6">
-          <Link to="/">Return home</Link>
+          <Link to="/">{t("notfound.home")}</Link>
         </Button>
       </div>
     </main>
@@ -99,14 +101,16 @@ function RootDocument() {
         <PreviewHostBridge />
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <Outlet />
-            <Toaster
-              theme="light"
-              position="bottom-center"
-              toastOptions={{
-                className: "bg-surface text-fg border-line",
-              }}
-            />
+            <LocaleProvider>
+              <Outlet />
+              <Toaster
+                theme="light"
+                position="bottom-center"
+                toastOptions={{
+                  className: "bg-surface text-fg border-line",
+                }}
+              />
+            </LocaleProvider>
           </AuthProvider>
         </QueryClientProvider>
         <Scripts />

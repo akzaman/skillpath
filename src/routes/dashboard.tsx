@@ -12,6 +12,7 @@ import { getContinueWatching, getLibrary, getProgressOverview } from "@/lib/lear
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { canAdmin, canTeach } from "@/lib/roles";
 import { useProfile } from "@/lib/use-profile";
+import { useI18n } from "@/lib/i18n";
 import { formatMinutes } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const { t } = useI18n();
   const { user, isPending, profile, error } = useProfile();
   const catalogQuery = useQuery({
     queryKey: ["catalog", user?.id],
@@ -70,26 +72,26 @@ function DashboardPage() {
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
-        <p className="text-sm font-bold tracking-wide text-primary uppercase">{role}</p>
+        <p className="text-sm font-bold tracking-wide text-primary uppercase">{t(`role.${role}`)}</p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight">
-          Welcome back{user.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
+          {user.displayName
+            ? t("dash.welcomeName", { name: user.displayName.split(" ")[0] })
+            : t("dash.welcome")}
         </h1>
-        <p className="mt-2 max-w-xl text-muted">
-          Your desk — progress is saved as you watch. Switch role below for teacher or admin tools.
-        </p>
+        <p className="mt-2 max-w-xl text-muted">{t("dash.lede")}</p>
 
         {error ? (
           <p className="mt-4 rounded-md border border-danger/40 bg-surface px-3 py-2 text-sm text-danger">
-            Could not load your role. Refresh and try again.
+            {t("dash.roleError")}
           </p>
         ) : null}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {[
-            { label: "Courses", value: overview?.enrolledCourses ?? enrolled.length },
-            { label: "Lectures done", value: overview?.completedLessons ?? 0 },
-            { label: "In motion", value: overview?.startedLessons ?? 0 },
-            { label: "Watched", value: formatMinutes(overview?.watchedSeconds ?? 0) },
+            { label: t("dash.courses"), value: overview?.enrolledCourses ?? enrolled.length },
+            { label: t("dash.done"), value: overview?.completedLessons ?? 0 },
+            { label: t("dash.motion"), value: overview?.startedLessons ?? 0 },
+            { label: t("dash.watched"), value: formatMinutes(overview?.watchedSeconds ?? 0) },
           ].map((item) => (
             <div key={item.label} className="rounded-md border border-line bg-surface p-4">
               <p className="text-xs font-bold tracking-wide text-muted uppercase">{item.label}</p>
@@ -104,29 +106,29 @@ function DashboardPage() {
 
         <div className="mt-6 flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/progress">Open progress</Link>
+            <Link to="/progress">{t("dash.openProgress")}</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/catalog">Browse courses</Link>
+            <Link to="/catalog">{t("dash.browse")}</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/library">My learning</Link>
+            <Link to="/library">{t("dash.learning")}</Link>
           </Button>
           {canTeach(role) ? (
             <Button asChild variant="outline">
-              <Link to="/teach">Open teacher studio</Link>
+              <Link to="/teach">{t("dash.studio")}</Link>
             </Button>
           ) : null}
           {canAdmin(role) ? (
             <Button asChild variant="outline">
-              <Link to="/admin">Open admin</Link>
+              <Link to="/admin">{t("dash.admin")}</Link>
             </Button>
           ) : null}
         </div>
 
         {resumeCourse && resumeLesson ? (
           <section className="mt-8 rounded-md border border-line bg-surface p-5">
-            <p className="text-xs font-bold tracking-wide text-muted uppercase">Continue</p>
+            <p className="text-xs font-bold tracking-wide text-muted uppercase">{t("dash.continue")}</p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-lg font-bold">{resumeCourse.title}</p>
@@ -140,7 +142,7 @@ function DashboardPage() {
                   to="/watch/$courseSlug/$lessonSlug"
                   params={{ courseSlug: resumeCourse.slug, lessonSlug: resumeLesson }}
                 >
-                  Resume lecture
+                  {t("dash.resume")}
                 </Link>
               </Button>
             </div>

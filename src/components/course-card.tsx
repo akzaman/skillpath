@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { type Course, courseDuration } from "@/data/catalog";
 import { formatPrice, getMarket } from "@/data/market";
 import { formatMinutes } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export function CourseCard({
   course,
@@ -14,6 +15,7 @@ export function CourseCard({
   progress?: { completed: number; total: number };
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   const market = getMarket(course.slug);
   const minutes = courseDuration(course);
   const pct =
@@ -51,11 +53,11 @@ export function CourseCard({
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {market.badge ? (
             <span className="rounded-sm bg-badge px-1.5 py-0.5 text-[11px] font-bold text-badge-fg">
-              {market.badge}
+              {market.badge === "Bestseller" ? t("card.bestseller") : market.badge}
             </span>
           ) : null}
           <span className="text-[11px] text-subtle tabular-nums">
-            {course.lessons.length} lectures · {formatMinutes(minutes)}
+            {t("card.lectures", { n: course.lessons.length, time: formatMinutes(minutes) })}
           </span>
         </div>
         {pct !== null ? (

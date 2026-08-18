@@ -11,6 +11,7 @@ import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { getLibrary } from "@/lib/learning";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/library")({
   validateSearch: (search: Record<string, unknown>): { tab?: "saved" | "learning" } => {
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/library")({
 });
 
 function LibraryPage() {
+  const { t } = useI18n();
   const { tab = "learning" } = Route.useSearch();
   const { user, isPending } = useCurrentUserState();
   const libraryQuery = useQuery({
@@ -65,17 +67,15 @@ function LibraryPage() {
     <div className="flex min-h-dvh flex-col">
       <SiteHeader solid />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-bold tracking-tight">My learning</h1>
-        <p className="mt-2 max-w-xl text-muted">
-          Courses you have enrolled in, and the ones on your wishlist.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("lib.title")}</h1>
+        <p className="mt-2 max-w-xl text-muted">{t("lib.lede")}</p>
 
         <div className="mt-8 flex gap-2">
           <TabLink to="/library" search={{ tab: "learning" }} active={tab === "learning"}>
-            All courses
+            {t("lib.all")}
           </TabLink>
           <TabLink to="/library" search={{ tab: "saved" }} active={tab === "saved"}>
-            Wishlist
+            {t("lib.wish")}
           </TabLink>
         </div>
 
