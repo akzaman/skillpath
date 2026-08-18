@@ -26,6 +26,7 @@ import { Route as TeachIndexRouteImport } from './routes/teach.index'
 import { Route as TeachSlugRouteImport } from './routes/teach.$slug'
 import { Route as TeachNewRouteImport } from './routes/teach.new'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCronAccessExpiryRouteImport } from './routes/api/cron/access-expiry'
 import { Route as ApiMediaIdRouteImport } from './routes/api/media/$id'
 import { Route as ApiMediaUploadRouteImport } from './routes/api/media/upload'
 import { Route as WatchCourseSlugLessonSlugRouteImport } from './routes/watch.$courseSlug.$lessonSlug'
@@ -115,6 +116,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronAccessExpiryRoute = ApiCronAccessExpiryRouteImport.update({
+  id: '/api/cron/access-expiry',
+  path: '/api/cron/access-expiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaIdRoute = ApiMediaIdRouteImport.update({
   id: '/api/media/$id',
   path: '/api/media/$id',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/teach/': typeof TeachIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/access-expiry': typeof ApiCronAccessExpiryRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/teach': typeof TeachIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/access-expiry': typeof ApiCronAccessExpiryRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/teach/': typeof TeachIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/access-expiry': typeof ApiCronAccessExpiryRoute
   '/api/media/$id': typeof ApiMediaIdRoute
   '/api/media/upload': typeof ApiMediaUploadRoute
   '/watch/$courseSlug/$lessonSlug': typeof WatchCourseSlugLessonSlugRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/teach/'
     | '/api/auth/$'
+    | '/api/cron/access-expiry'
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/teach'
     | '/api/auth/$'
+    | '/api/cron/access-expiry'
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/teach/'
     | '/api/auth/$'
+    | '/api/cron/access-expiry'
     | '/api/media/$id'
     | '/api/media/upload'
     | '/watch/$courseSlug/$lessonSlug'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   TeachRoute: typeof TeachRouteWithChildren
   CourseSlugRoute: typeof CourseSlugRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronAccessExpiryRoute: typeof ApiCronAccessExpiryRoute
   ApiMediaIdRoute: typeof ApiMediaIdRoute
   ApiMediaUploadRoute: typeof ApiMediaUploadRoute
   WatchCourseSlugLessonSlugRoute: typeof WatchCourseSlugLessonSlugRoute
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/access-expiry': {
+      id: '/api/cron/access-expiry'
+      path: '/api/cron/access-expiry'
+      fullPath: '/api/cron/access-expiry'
+      preLoaderRoute: typeof ApiCronAccessExpiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/$id': {
       id: '/api/media/$id'
       path: '/api/media/$id'
@@ -466,6 +486,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeachRoute: TeachRouteWithChildren,
   CourseSlugRoute: CourseSlugRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronAccessExpiryRoute: ApiCronAccessExpiryRoute,
   ApiMediaIdRoute: ApiMediaIdRoute,
   ApiMediaUploadRoute: ApiMediaUploadRoute,
   WatchCourseSlugLessonSlugRoute: WatchCourseSlugLessonSlugRoute,

@@ -533,6 +533,15 @@ export const enrollStudentByEmail = createServerFn({ method: "POST" })
         enrolled_by = excluded.enrolled_by,
         enrolled_at = now()
     `;
+    void import("@/lib/access-mail").then(({ notifyAccess }) => {
+      void notifyAccess({
+        userId: student.id,
+        email: student.email,
+        courseSlug: data.slug,
+        expiresAt: expires,
+        kind: "enrolled",
+      });
+    });
     return { ok: true as const, userId: student.id };
   });
 
@@ -560,6 +569,14 @@ export const setEnrollmentAccess = createServerFn({ method: "POST" })
       returning user_id
     `;
     if (!updated[0]) throw new Error("Enrollment not found");
+    void import("@/lib/access-mail").then(({ notifyAccess }) => {
+      void notifyAccess({
+        userId: data.userId,
+        courseSlug: data.slug,
+        expiresAt: expires,
+        kind: "extended",
+      });
+    });
     return { ok: true as const };
   });
 
@@ -576,5 +593,18 @@ export const removeEnrollment = createServerFn({ method: "POST" })
       where course_slug = ${data.slug} and user_id = ${data.userId}
     `;
     return { ok: true as const };
+  });
+
+export const runAccessExpirySweep = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const profile = await ensureProfile(context.userId);
+    if (!canAdmin(profile.role)) throw new Error("Forbidden");
+    const { mailConfigured } = await import("@/lib/mail");
+    if (!mailConfigured()) {
+      throw new Error("Set RESEND_API_KEY (and EMAIL_FROM) on Vercel to send access emails");
+    }
+    const { processAccessExpiryEmails } = await import("@/lib/access-mail");
+    return processAccessExpiryEmails();
   });
 

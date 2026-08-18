@@ -67,6 +67,10 @@ function DashboardPage() {
   }
   const role = profile?.role ?? "student";
   const overview = overviewQuery.data;
+  const endingSoon = enrolled.filter(
+    (item) => item.accessActive && item.daysRemaining !== null && item.daysRemaining <= 3,
+  );
+  const ended = enrolled.filter((item) => !item.accessActive && item.expiresAt);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -78,6 +82,28 @@ function DashboardPage() {
             ? t("dash.welcomeName", { name: user.displayName.split(" ")[0] })
             : t("dash.welcome")}
         </h1>
+        {endingSoon.length > 0 || ended.length > 0 ? (
+          <div className="mt-4 rounded-md border border-line bg-surface px-4 py-3 text-sm">
+            {endingSoon.map((item) => {
+              const course = bySlug.get(item.courseSlug);
+              return (
+                <p key={item.courseSlug}>
+                  Access to <span className="font-bold">{course?.title ?? item.courseSlug}</span>{" "}
+                  ends in {item.daysRemaining} day{item.daysRemaining === 1 ? "" : "s"}.
+                </p>
+              );
+            })}
+            {ended.map((item) => {
+              const course = bySlug.get(item.courseSlug);
+              return (
+                <p key={item.courseSlug}>
+                  Access to <span className="font-bold">{course?.title ?? item.courseSlug}</span>{" "}
+                  has ended.
+                </p>
+              );
+            })}
+          </div>
+        ) : null}
         <p className="mt-2 max-w-xl text-muted">{t("dash.lede")}</p>
 
         {error ? (

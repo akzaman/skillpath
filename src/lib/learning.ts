@@ -63,6 +63,16 @@ export const enrollInCourse = createServerFn({ method: "POST" })
         expires_at = excluded.expires_at,
         enrolled_at = now()
     `;
+    void import("@/lib/access-mail").then(({ notifyAccess, maybeSweepAccessEmails }) => {
+      void notifyAccess({
+        userId: context.userId,
+        courseSlug: data.courseSlug,
+        courseTitle: course?.title,
+        expiresAt: expires,
+        kind: "enrolled",
+      });
+      void maybeSweepAccessEmails();
+    });
     return { ok: true as const, expiresAt: expires?.toISOString() ?? null };
   });
 
@@ -363,6 +373,9 @@ export const getProgressOverview = createServerFn({ method: "GET" })
       from lesson_progress
       where user_id = ${context.userId}
     `;
+    void import("@/lib/access-mail").then(({ maybeSweepAccessEmails }) => {
+      void maybeSweepAccessEmails();
+    });
     return {
       enrolledCourses: Number(enrolled[0]?.n ?? 0),
       startedLessons: Number(lessons[0]?.started ?? 0),

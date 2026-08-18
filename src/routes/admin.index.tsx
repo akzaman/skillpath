@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RedirectToSignIn } from "@/lib/auth/gates";
-import { listAdminCourses, setCourseFlags } from "@/lib/cms";
+import { listAdminCourses, runAccessExpirySweep, setCourseFlags } from "@/lib/cms";
 import {
   canAdmin,
   getAdminStats,
@@ -78,6 +78,13 @@ function AdminPage() {
       toast("Catalog updated");
     },
     onError: (error) => toast(error.message || "Could not update course"),
+  });
+
+  const sweep = useMutation({
+    mutationFn: () => runAccessExpirySweep(),
+    onSuccess: (result) =>
+      toast(`Expiry emails: ${result.sent} sent, ${result.skipped} skipped (${result.scanned} checked)`),
+    onError: (error) => toast(error.message || "Could not send expiry emails"),
   });
 
   if (isPending) {
@@ -153,6 +160,23 @@ function AdminPage() {
 
         <div className="mt-8">
           <CreateUserForm />
+        </div>
+
+        <div className="mt-6 rounded-md border border-line bg-surface p-4">
+          <p className="text-sm font-bold">Access emails</p>
+          <p className="mt-1 text-sm text-muted">
+            Sends reminders 3 days and 1 day before access ends, and a notice when it ends.
+            Needs RESEND_API_KEY on Vercel. Also runs each morning and when students open the dashboard.
+          </p>
+          <Button
+            className="mt-3"
+            variant="outline"
+            size="sm"
+            disabled={sweep.isPending}
+            onClick={() => sweep.mutate()}
+          >
+            {sweep.isPending ? "Sending…" : "Send expiry emails now"}
+          </Button>
         </div>
 
         <section className="mt-10">
